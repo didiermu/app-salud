@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { db } from '../firebase';
 import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
+import { DEFAULT_SEQUENCE_MODE } from '../services/routineSequence';
 
 // -----------------------------------------------------------------
 // MOTOR DE ALMACENAMIENTO (SOLO FIREBASE)
@@ -132,7 +133,8 @@ export const useRoutineStore = create(
           weight: 0, 
           videoUrl: exercise.videoUrl || '',
           hasTimer: false, // Nuevo: Timer opcional para el ejercicio
-          timerDuration: 60 // Nuevo: Duración del timer del ejercicio
+          timerDuration: 60, // Nuevo: Duración del timer del ejercicio
+          sequence: exercise.sequence || DEFAULT_SEQUENCE_MODE // Continuo o alternado dentro de la rutina
         }] };
       }),
 
@@ -149,6 +151,16 @@ export const useRoutineStore = create(
         const target = idx + direction;
         if (target < 0 || target >= list.length) return state;
         [list[idx], list[target]] = [list[target], list[idx]];
+        return { selectedExercises: list };
+      }),
+
+      reorderExercises: (activeId, overId) => set((state) => {
+        const list = [...state.selectedExercises];
+        const oldIndex = list.findIndex(e => e.id === activeId);
+        const newIndex = list.findIndex(e => e.id === overId);
+        if (oldIndex === -1 || newIndex === -1) return state;
+        const [removed] = list.splice(oldIndex, 1);
+        list.splice(newIndex, 0, removed);
         return { selectedExercises: list };
       }),
 
@@ -188,7 +200,7 @@ export const useRoutineStore = create(
           r.id === routineId
             ? { ...r, exercises: r.exercises.map(ex => {
                 const update = updatedExercises.find(u => u.id === ex.id);
-                return update ? { ...ex, sets: update.sets, reps: update.reps, weight: update.weight, rest: update.rest, notes: update.notes || '' } : ex;
+                return update ? { ...ex, sets: update.sets, reps: update.reps, weight: update.weight, rest: update.rest, notes: update.notes || '', sequence: update.sequence || DEFAULT_SEQUENCE_MODE } : ex;
               })}
             : r
         )

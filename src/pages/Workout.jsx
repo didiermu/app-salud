@@ -4,6 +4,7 @@ import { useRoutineStore } from '../store/useStore';
 import { Play, Pause, ChevronRight, CheckCircle2, Timer as TimerIcon, Dumbbell, Trophy } from 'lucide-react';
 import Modal from '../components/Modal';
 import ExerciseLoadHistory from '../components/ExerciseLoadHistory';
+import { buildWorkoutSteps, isAlternated, stepKey } from '../services/routineSequence';
 import clsx from 'clsx';
 
 const Workout = () => {
@@ -13,27 +14,11 @@ const Workout = () => {
 
   const routine = routines.find(r => r.id === id);
   
-  // 1. APLANAR LA RUTINA EN FORMATO CIRCUITO (LOOP)
-  const workoutSteps = useMemo(() => {
-    if (!routine || routine.exercises.length === 0) return [];
-    
-    const steps = [];
-    const maxSets = Math.max(...routine.exercises.map(ex => ex.sets));
-
-    for (let s = 1; s <= maxSets; s++) {
-      routine.exercises.forEach((ex) => {
-        if (s <= ex.sets) {
-          steps.push({
-            ...ex,
-            currentSet: s,
-            totalSets: ex.sets,
-            round: s
-          });
-        }
-      });
-    }
-    return steps;
-  }, [routine]);
+  // 1. APLANAR LA RUTINA EN PASOS (SECUENCIA CONTINUA / ALTERNADA POR EJERCICIO)
+  const workoutSteps = useMemo(
+    () => buildWorkoutSteps(routine?.exercises),
+    [routine]
+  );
 
   const [currentSteps, setCurrentSteps] = useState([]);
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
@@ -111,36 +96,23 @@ const Workout = () => {
         );
       }
 
-      if (field === 'totalSets') {
+      if (field === 'configuredSets') {
         const exId = next[currentStepIdx].id;
-        const before = next.slice(0, currentStepIdx);
-        const after = next.slice(currentStepIdx + 1);
-        const cur = { ...next[currentStepIdx], totalSets: value };
+        const cur = { ...next[currentStepIdx], configuredSets: value };
 
-        const afterWithoutEx = after.filter(s => s.id !== exId || s.round > value);
+        // Reconstruye el orden respetando la secuencia de cada ejercicio.
+        // Los pasos ya existentes se reusan por id+serie para no perder
+        // los valores editados durante la sesion (reps, peso, notas).
+        const prevByKey = new Map(prev.map(s => [stepKey(s), s]));
+        const rebuilt = buildWorkoutSteps(
+          routine.exercises.map(ex => (ex.id === exId ? { ...ex, sets: value } : ex))
+        ).map(step => {
+          const existing = prevByKey.get(stepKey(step));
+          if (!existing) return step;
+          return { ...step, reps: existing.reps, weight: existing.weight, notes: existing.notes, rest: existing.rest };
+        });
 
-        let rebuilt = [];
-        const exercises = routine.exercises;
-        const maxSets = Math.max(...exercises.map(ex => ex.id === exId ? value : ex.sets));
-
-        for (let s = 1; s <= maxSets; s++) {
-          for (const ex of exercises) {
-            const exSets = ex.id === exId ? value : ex.sets;
-            if (s <= exSets) {
-              const existing = [...before, cur, ...afterWithoutEx].find(
-                step => step.id === ex.id && step.round === s
-              );
-              rebuilt.push(existing || {
-                ...ex,
-                currentSet: s,
-                totalSets: exSets,
-                round: s
-              });
-            }
-          }
-        }
-
-        const curIdx = rebuilt.findIndex(s => s.id === cur.id && s.round === cur.round);
+        const curIdx = rebuilt.findIndex(s => stepKey(s) === stepKey(cur));
         if (curIdx >= 0) {
           const moved = rebuilt.splice(curIdx, 1)[0];
           rebuilt.splice(currentStepIdx, 0, moved);
@@ -164,11 +136,13 @@ const Workout = () => {
       })
       .map(step => ({
         id: step.id,
-        sets: step.totalSets || step.sets,
+        // Un ejercicio alternado ejecuta 1 serie pero su N configurado se conserva
+        sets: step.configuredSets ?? step.sets,
         reps: step.reps,
         weight: step.weight || 0,
         rest: step.rest,
         notes: step.notes || '',
+        sequence: step.sequence,
       }));
     updateRoutineExercises(routine.id, unique);
   }, [routine, currentSteps, updateRoutineExercises]);
@@ -350,7 +324,8 @@ const Workout = () => {
             const isCurrent = idx === currentStepIdx;
             return (
               <div key={`${step.id}-${idx}`} className="flex items-center gap-3 flex-shrink-0">
-                <button 
+                <button
+                  title={`${step.name} - Serie ${step.currentSet}`}
                   onClick={() => {
                     setCurrentStepIdx(idx);
                     setIsResting(false);
@@ -407,9 +382,11 @@ const Workout = () => {
                )}>
                  {isResting ? 'Prepárate' : isExerciseTimer ? 'En Tiempo' : 'Activo'}
                </span>
-               <span className="bg-blue-600 text-white px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-lg">
-                 S{activeStep.currentSet} / {activeStep.totalSets}
-               </span>
+                <span className="bg-blue-600 text-white px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-lg">
+                  {isAlternated(activeStep)
+                    ? `1 de ${activeStep.configuredSets} series`
+                    : `S${activeStep.currentSet} / ${activeStep.totalSets}`}
+                </span>
             </div>
           </div>
         </div>
@@ -460,12 +437,14 @@ const Workout = () => {
               isResting && "opacity-40"
             )}>
               <div className="flex flex-col">
-                <p className="text-[10px] font-bold uppercase text-neutral-600 mb-0.5 tracking-widest">Series</p>
+                <p className="text-[10px] font-bold uppercase text-neutral-600 mb-0.5 tracking-widest">
+                  {isAlternated(activeStep) ? 'Series (1 se ejecuta)' : 'Series'}
+                </p>
                 <input 
                   type="number"
                   min="1"
-                  value={activeStep.totalSets}
-                  onChange={(e) => updateCurrentStepData('totalSets', Math.max(1, Number(e.target.value)))}
+                  value={activeStep.configuredSets ?? ''}
+                  onChange={(e) => updateCurrentStepData('configuredSets', Math.max(1, Number(e.target.value) || 1))}
                   disabled={isResting}
                   className="text-2xl font-bold text-neutral-900 bg-transparent w-12 outline-none border-b-2 border-transparent focus:border-neutral-200"
                 />
@@ -570,9 +549,17 @@ const Workout = () => {
                         {ex.name}
                       </p>
                       <p className={clsx("text-[10px] font-bold uppercase tracking-wider", isCurrent ? "text-white/60" : "text-neutral-400")}>
-                        {ex.sets} series × {ex.reps} reps
+                        {isAlternated(ex)
+                          ? `1 serie (de ${ex.sets}) × ${ex.reps} reps`
+                          : `${ex.sets} series × ${ex.reps} reps`}
                       </p>
                     </div>
+                    <span className={clsx(
+                      "flex-shrink-0 text-[8px] font-black uppercase tracking-widest px-1.5 py-1 rounded-md",
+                      isCurrent ? "bg-white/15 text-white" : "bg-neutral-200 text-neutral-500"
+                    )}>
+                      {isAlternated(ex) ? 'Alt' : 'Cont'}
+                    </span>
                     <div className="flex-shrink-0">
                       {isCompleted ? (
                         <CheckCircle2 size={18} className="text-green-500" />

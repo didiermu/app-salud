@@ -1,14 +1,30 @@
 import { useState, useEffect } from "react";
 import { useRoutineStore, useHistoryStore } from "../store/useStore";
 import { uploadToCloudinary } from "../services/cloudinaryService";
-import { Dumbbell, Trash2, Play, Save, X, Plus, Edit2, CheckCircle2, ChevronUp, ChevronDown, Trophy, Upload, Loader2, Video } from 'lucide-react';
+import { Dumbbell, Trash2, Play, Save, X, Plus, Edit2, CheckCircle2, GripVertical, Trophy, Upload, Loader2, Video } from 'lucide-react';
 import { Link } from "react-router-dom";
 import Modal from "../components/Modal";
 import ExerciseLoadHistory from "../components/ExerciseLoadHistory";
+import { SEQUENCE_MODES, isAlternated } from "../services/routineSequence";
 import clsx from "clsx";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragOverlay,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const Routines = () => {
-    const { routines, selectedExercises, updateExerciseConfig, moveExercise, addRoutine, deleteRoutine, toggleSelection, editingRoutineId, loadRoutineForEditing, cancelEditing, editCustomExercise } = useRoutineStore();
+    const { routines, selectedExercises, updateExerciseConfig, moveExercise, reorderExercises, addRoutine, deleteRoutine, toggleSelection, editingRoutineId, loadRoutineForEditing, cancelEditing, editCustomExercise } = useRoutineStore();
     const { addExerciseSnapshot } = useHistoryStore();
 
     const [routineName, setRoutineName] = useState("");
@@ -179,115 +195,13 @@ const Routines = () => {
                                 </div>
 
                                 <div className="space-y-4">
-                                    {selectedExercises.map((ex) => (
-                                        <div key={ex.id} onClick={() => setSelectedExercise(ex)} className="group bg-neutral-50 border border-neutral-100 rounded-xl p-4 flex flex-col gap-4 relative cursor-pointer hover:border-neutral-300 transition-colors">
-                                            <div onClick={(e) => e.stopPropagation()} className="absolute top-2 right-2 flex items-center gap-1 z-10">
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); moveExercise(ex.id, -1); }}
-                                                    disabled={selectedExercises.findIndex(e => e.id === ex.id) === 0}
-                                                    className="p-1.5 text-neutral-300 hover:text-neutral-700 hover:bg-white rounded-full transition-colors disabled:opacity-20 disabled:pointer-events-none"
-                                                    title="Mover arriba"
-                                                >
-                                                    <ChevronUp size={14} />
-                                                </button>
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); moveExercise(ex.id, 1); }}
-                                                    disabled={selectedExercises.findIndex(e => e.id === ex.id) === selectedExercises.length - 1}
-                                                    className="p-1.5 text-neutral-300 hover:text-neutral-700 hover:bg-white rounded-full transition-colors disabled:opacity-20 disabled:pointer-events-none"
-                                                    title="Mover abajo"
-                                                >
-                                                    <ChevronDown size={14} />
-                                                </button>
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); toggleSelection(ex); }}
-                                                    className="p-1.5 text-neutral-300 hover:text-red-500 hover:bg-white rounded-full transition-colors"
-                                                    title="Eliminar de la rutina"
-                                                >
-                                                    <Trash2 size={14} />
-                                                </button>
-                                            </div>
-
-                                            <div className="flex items-center gap-4 w-full pr-8">
-                                                {ex.imageUrl && <img src={ex.imageUrl} alt={ex.name} className="w-12 h-12 rounded-lg object-cover mix-blend-multiply flex-shrink-0" />}
-                                                <div className="min-w-0">
-                                                    <h4 className="font-bold text-neutral-800 capitalize">{ex.name}</h4>
-                                                    <p className="text-xs text-neutral-400 uppercase font-bold tracking-tighter">{ex.target}</p>
-                                                </div>
-                                            </div>
-
-                                            <div onClick={(e) => e.stopPropagation()} className="flex flex-wrap gap-2 items-center w-full">
-                                                <div className="flex flex-col flex-1 min-w-[60px]">
-                                                    <label className="text-[9px] font-black uppercase text-neutral-400 mb-1">Series</label>
-                                                    <input
-                                                        type="number"
-                                                        min="1"
-                                                        value={ex.sets ?? ''}
-                                                        onChange={(e) => updateExerciseConfig(ex.id, "sets", e.target.value === '' ? '' : Number(e.target.value))}
-                                                        className="w-full bg-white border border-neutral-200 rounded-lg p-2 text-center font-bold text-sm focus:border-neutral-900 outline-none transition-colors"
-                                                    />
-                                                </div>
-                                                <div className="flex flex-col flex-1 min-w-[60px]">
-                                                    <label className="text-[9px] font-black uppercase text-neutral-400 mb-1">Reps</label>
-                                                    <input
-                                                        type="number"
-                                                        min="1"
-                                                        value={ex.reps ?? ''}
-                                                        onChange={(e) => updateExerciseConfig(ex.id, "reps", e.target.value === '' ? '' : Number(e.target.value))}
-                                                        className="w-full bg-white border border-neutral-200 rounded-lg p-2 text-center font-bold text-sm focus:border-neutral-900 outline-none transition-colors"
-                                                    />
-                                                </div>
-                                                <div className="flex flex-col flex-1 min-w-[70px]">
-                                                    <label className="text-[9px] font-black uppercase text-neutral-400 mb-1">Peso (kg)</label>
-                                                    <input
-                                                        type="number"
-                                                        min="0"
-                                                        step="0.5"
-                                                        value={ex.weight ?? ''}
-                                                        onChange={(e) => updateExerciseConfig(ex.id, "weight", e.target.value === '' ? '' : Number(e.target.value))}
-                                                        className="w-full bg-white border border-neutral-200 rounded-lg p-2 text-center font-bold text-sm focus:border-neutral-900 outline-none transition-colors text-blue-600"
-                                                    />
-                                                </div>
-                                                <div className="flex flex-col flex-1 min-w-[70px]">
-                                                    <label className="text-[9px] font-black uppercase text-neutral-400 mb-1">Descanso (s)</label>
-                                                    <input
-                                                        type="number"
-                                                        min="0"
-                                                        step="10"
-                                                        value={ex.rest ?? ''}
-                                                        onChange={(e) => updateExerciseConfig(ex.id, "rest", e.target.value === '' ? '' : Number(e.target.value))}
-                                                        className="w-full bg-white border border-neutral-200 rounded-lg p-2 text-center font-bold text-sm focus:border-neutral-900 outline-none transition-colors"
-                                                    />
-                                                </div>
-                                                <div className="flex flex-col flex-1 min-w-[70px]">
-                                                    <label className="text-[9px] font-black uppercase text-neutral-400 mb-1">Timer Set</label>
-                                                    <div className="flex gap-1">
-                                                        <button 
-                                                            onClick={() => updateExerciseConfig(ex.id, "hasTimer", !ex.hasTimer)}
-                                                            className={clsx(
-                                                                "flex-1 rounded-lg p-2 flex items-center justify-center transition-all border",
-                                                                ex.hasTimer ? "bg-blue-600 text-white border-blue-600" : "bg-white text-neutral-400 border-neutral-200"
-                                                            )}
-                                                        >
-                                                            {ex.hasTimer ? <CheckCircle2 size={16} /> : <X size={16} />}
-                                                        </button>
-                                                        {ex.hasTimer && (
-                                                            <input
-                                                                type="number"
-                                                                min="5"
-                                                                step="5"
-                                                                value={ex.timerDuration ?? ''}
-                                                                onChange={(e) => updateExerciseConfig(ex.id, "timerDuration", e.target.value === '' ? '' : Number(e.target.value))}
-                                                                className="w-16 bg-blue-50 border border-blue-200 rounded-lg p-2 text-center font-bold text-sm text-blue-600 focus:border-blue-600 outline-none transition-colors"
-                                                                title="Segundos de duración del ejercicio"
-                                                            />
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <ExerciseLoadHistory exerciseName={ex.name} />
-                                        </div>
-                                    ))}
+                                    <SortableExerciseList
+                                      exercises={selectedExercises}
+                                      setSelectedExercise={setSelectedExercise}
+                                      toggleSelection={toggleSelection}
+                                      updateExerciseConfig={updateExerciseConfig}
+                                      onReorder={reorderExercises}
+                                    />
                                 </div>
 
                                 <div className="flex gap-4 pt-4 border-t border-neutral-100">
@@ -658,3 +572,214 @@ const Routines = () => {
 };
 
 export default Routines;
+
+const SortableExerciseItem = ({
+  exercise,
+  exIdx,
+  selectedExercises,
+  setSelectedExercise,
+  toggleSelection,
+  updateExerciseConfig,
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: exercise.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 50 : 1,
+  };
+
+  const nextExercise = selectedExercises[exIdx + 1];
+  const nextName = nextExercise ? nextExercise.name : 'el final de la rutina';
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      onClick={() => setSelectedExercise(exercise)}
+      className="group bg-neutral-50 border border-neutral-100 rounded-xl p-4 flex flex-col gap-4 relative cursor-pointer hover:border-neutral-300 transition-colors"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="absolute top-2 right-2 flex items-center gap-1 z-10"
+      >
+        <button
+          {...attributes}
+          {...listeners}
+          onClick={(e) => e.stopPropagation()}
+          className="p-1.5 text-neutral-400 hover:text-neutral-700 hover:bg-white rounded-full transition-colors cursor-grab active:cursor-grabbing"
+          title="Arrastrar para reordenar"
+        >
+          <GripVertical size={14} />
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleSelection(exercise);
+          }}
+          className="p-1.5 text-neutral-300 hover:text-red-500 hover:bg-white rounded-full transition-colors"
+          title="Eliminar de la rutina"
+        >
+          <Trash2 size={14} />
+        </button>
+      </div>
+
+      <div className="flex items-center gap-4 w-full pr-8">
+        {exercise.imageUrl && (
+          <img
+            src={exercise.imageUrl}
+            alt={exercise.name}
+            className="w-12 h-12 rounded-lg object-cover mix-blend-multiply flex-shrink-0"
+          />
+        )}
+        <div className="min-w-0">
+          <h4 className="font-bold text-neutral-800 capitalize">{exercise.name}</h4>
+          <p className="text-xs text-neutral-400 uppercase font-bold tracking-tighter">
+            {exercise.target}
+          </p>
+        </div>
+      </div>
+
+      <div onClick={(e) => e.stopPropagation()} className="flex flex-wrap gap-2 items-center w-full">
+        <div className="flex flex-col flex-1 min-w-[60px]">
+          <label className="text-[9px] font-black uppercase text-neutral-400 mb-1">Series</label>
+          <input
+            type="number"
+            min="1"
+            value={exercise.sets ?? ''}
+            onChange={(e) =>
+              updateExerciseConfig(
+                exercise.id,
+                'sets',
+                e.target.value === '' ? '' : Number(e.target.value)
+              )
+            }
+            className="w-full bg-white border border-neutral-200 rounded-lg p-2 text-center font-bold text-sm focus:border-neutral-900 outline-none transition-colors"
+          />
+        </div>
+        <div className="flex flex-col flex-1 min-w-[150px]">
+          <label className="text-[9px] font-black uppercase text-neutral-400 mb-1">
+            Secuencia
+          </label>
+          <div className="flex gap-1">
+            <button
+              onClick={() => updateExerciseConfig(exercise.id, 'sequence', SEQUENCE_MODES.CONTINUOUS)}
+              title="Ejecuta todas las series seguidas y luego pasa al siguiente ejercicio"
+              className={clsx(
+                'flex-1 rounded-lg p-2 flex items-center justify-center transition-all border text-[9px] font-black uppercase tracking-tight',
+                !isAlternated(exercise)
+                  ? 'bg-neutral-900 text-white border-neutral-900'
+                  : 'bg-white text-neutral-400 border-neutral-200 hover:text-neutral-700'
+              )}
+            >
+              Continuo
+            </button>
+            <button
+              onClick={() => updateExerciseConfig(exercise.id, 'sequence', SEQUENCE_MODES.ALTERNATED)}
+              title="Ejecuta 1 sola serie y luego pasa al siguiente ejercicio"
+              className={clsx(
+                'flex-1 rounded-lg p-2 flex items-center justify-center transition-all border text-[9px] font-black uppercase tracking-tight',
+                isAlternated(exercise)
+                  ? 'bg-neutral-900 text-white border-neutral-900'
+                  : 'bg-white text-neutral-400 border-neutral-200 hover:text-neutral-700'
+              )}
+            >
+              Alternado
+            </button>
+          </div>
+        </div>
+        {isAlternated(exercise) && (
+          <div className="w-full flex flex-col mt-2">
+            <span className="text-[9px] font-black uppercase text-neutral-400 text-center">
+              Después de 1 serie → pasa a {nextName}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const SortableExerciseList = ({
+  exercises,
+  setSelectedExercise,
+  toggleSelection,
+  updateExerciseConfig,
+  onReorder,
+}) => {
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      onReorder(active.id, over.id);
+    }
+  };
+
+  const [activeId, setActiveId] = useState(null);
+  const activeExercise = activeId ? exercises.find((e) => e.id === activeId) : null;
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={(e) => setActiveId(e.active.id)}
+      onDragEnd={(e) => {
+        setActiveId(null);
+        handleDragEnd(e);
+      }}
+      onDragCancel={() => setActiveId(null)}
+    >
+      <SortableContext items={exercises.map((e) => e.id)} strategy={verticalListSortingStrategy}>
+        <div className="space-y-4">
+          {exercises.map((ex, exIdx) => (
+            <SortableExerciseItem
+              key={ex.id}
+              exercise={ex}
+              exIdx={exIdx}
+              selectedExercises={exercises}
+              setSelectedExercise={setSelectedExercise}
+              toggleSelection={toggleSelection}
+              updateExerciseConfig={updateExerciseConfig}
+            />
+          ))}
+        </div>
+      </SortableContext>
+      <DragOverlay>
+        {activeExercise ? (
+          <div className="group bg-neutral-50 border border-neutral-900 rounded-xl p-4 flex flex-col gap-4 shadow-2xl">
+            <div className="flex items-center gap-4 w-full">
+              {activeExercise.imageUrl && (
+                <img
+                  src={activeExercise.imageUrl}
+                  alt={activeExercise.name}
+                  className="w-12 h-12 rounded-lg object-cover mix-blend-multiply flex-shrink-0"
+                />
+              )}
+              <div className="min-w-0">
+                <h4 className="font-bold text-neutral-800 capitalize">{activeExercise.name}</h4>
+                <p className="text-xs text-neutral-400 uppercase font-bold tracking-tighter">
+                  {activeExercise.target}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </DragOverlay>
+    </DndContext>
+  );
+};

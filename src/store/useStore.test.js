@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('../firebase', () => ({ db: undefined }));
 
 import { useRoutineStore, useHistoryStore, useUserStore } from './useStore';
+import { SEQUENCE_MODES, buildWorkoutSteps } from '../services/routineSequence';
 
 const exercise = {
   id: 'ex-1',
@@ -46,6 +47,7 @@ describe('useRoutineStore', () => {
     expect(selected[0].reps).toBe(12);
     expect(selected[0].rest).toBe(60);
     expect(selected[0].hasTimer).toBe(false);
+    expect(selected[0].sequence).toBe(SEQUENCE_MODES.CONTINUOUS);
   });
 
   it('toggleSelection elimina un ejercicio ya seleccionado', () => {
@@ -58,6 +60,63 @@ describe('useRoutineStore', () => {
     useRoutineStore.getState().toggleSelection(exercise);
     useRoutineStore.getState().updateExerciseConfig('ex-1', 'sets', 5);
     expect(useRoutineStore.getState().selectedExercises[0].sets).toBe(5);
+  });
+
+  it('updateExerciseConfig cambia la secuencia del ejercicio a alternado y de vuelta', () => {
+    useRoutineStore.getState().toggleSelection(exercise);
+    useRoutineStore.getState().updateExerciseConfig('ex-1', 'sequence', SEQUENCE_MODES.ALTERNATED);
+    expect(useRoutineStore.getState().selectedExercises[0].sequence).toBe(SEQUENCE_MODES.ALTERNATED);
+
+    useRoutineStore.getState().updateExerciseConfig('ex-1', 'sequence', SEQUENCE_MODES.CONTINUOUS);
+    expect(useRoutineStore.getState().selectedExercises[0].sequence).toBe(SEQUENCE_MODES.CONTINUOUS);
+  });
+
+  it('addRoutine y loadRoutineForEditing conservan la secuencia de cada ejercicio', () => {
+    useRoutineStore.getState().toggleSelection(exercise);
+    useRoutineStore.getState().updateExerciseConfig('ex-1', 'sequence', SEQUENCE_MODES.ALTERNATED);
+    useRoutineStore.getState().addRoutine('Full Body');
+    const id = useRoutineStore.getState().routines[0].id;
+
+    useRoutineStore.getState().loadRoutineForEditing(id);
+    expect(useRoutineStore.getState().editingRoutineId).toBe(id);
+    expect(useRoutineStore.getState().selectedExercises[0].sequence).toBe(SEQUENCE_MODES.ALTERNATED);
+  });
+
+  it('updateRoutineExercises mantiene el N configurado y la secuencia de un alternado', () => {
+    useRoutineStore.getState().toggleSelection(exercise);
+    useRoutineStore.getState().updateExerciseConfig('ex-1', 'sets', 4);
+    useRoutineStore.getState().updateExerciseConfig('ex-1', 'sequence', SEQUENCE_MODES.ALTERNATED);
+    useRoutineStore.getState().addRoutine('Full Body');
+    const routineId = useRoutineStore.getState().routines[0].id;
+
+    // Simula lo que hace syncRoutine al terminar el entrenamiento:
+    // deduplica los pasos y los manda de vuelta.
+    const steps = buildWorkoutSteps(useRoutineStore.getState().routines[0].exercises);
+    const seen = new Set();
+    const unique = steps
+      .filter((step) => {
+        if (seen.has(step.id)) return false;
+        seen.add(step.id);
+        return true;
+      })
+      .map((step) => ({
+        id: step.id,
+        sets: step.configuredSets ?? step.sets,
+        reps: step.reps,
+        weight: step.weight || 0,
+        rest: step.rest,
+        notes: step.notes || '',
+        sequence: step.sequence,
+      }));
+
+    expect(unique).toHaveLength(1);
+    expect(unique[0].sets).toBe(4);
+
+    useRoutineStore.getState().updateRoutineExercises(routineId, unique);
+
+    const saved = useRoutineStore.getState().routines[0].exercises[0];
+    expect(saved.sets).toBe(4);
+    expect(saved.sequence).toBe(SEQUENCE_MODES.ALTERNATED);
   });
 
   it('addRoutine guarda la rutina y limpia la selección', () => {
