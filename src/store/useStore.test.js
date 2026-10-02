@@ -2,7 +2,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../firebase', () => ({ db: undefined }));
 
-import { useRoutineStore, useHistoryStore, useUserStore } from './useStore';
+import {
+  getActiveUid,
+  resetStores,
+  setActiveUid,
+  useHistoryStore,
+  useRoutineStore,
+  useUserStore,
+} from './useStore';
 import { SEQUENCE_MODES, buildWorkoutSteps } from '../services/routineSequence';
 
 const exercise = {
@@ -13,7 +20,9 @@ const exercise = {
   imageUrl: 'https://example.com/squat.jpg',
 };
 
-const resetStores = () => {
+// Estado limpio entre tests. El `resetStores` del store real se importa
+// aparte para probar el logout; aquí montamos el estado inicial a mano.
+const seedEmptyState = () => {
   useRoutineStore.setState({
     routines: [],
     selectedExercises: [],
@@ -28,7 +37,56 @@ const resetStores = () => {
 };
 
 beforeEach(() => {
-  resetStores();
+  seedEmptyState();
+  setActiveUid(null);
+});
+
+describe('aislamiento por usuario', () => {
+  it('sin uid activo no persiste nada', async () => {
+    setActiveUid(null);
+    useUserStore.setState({ profile: { name: 'Sin sesión' } });
+
+    // El storage es un no-op sin sesión: no se crean documentos huérfanos.
+    await new Promise((r) => setTimeout(r, 10));
+    expect(getActiveUid()).toBeNull();
+  });
+
+  it('setActiveUid cambia el scope de escritura', () => {
+    setActiveUid('uid-1');
+    expect(getActiveUid()).toBe('uid-1');
+
+    setActiveUid('uid-2');
+    expect(getActiveUid()).toBe('uid-2');
+
+    setActiveUid(null);
+    expect(getActiveUid()).toBeNull();
+  });
+
+  it('resetStores limpia los datos del usuario anterior', () => {
+    setActiveUid('uid-1');
+    useUserStore.setState({ profile: { name: 'Didier', weight: '68.4' } });
+    useRoutineStore.setState({ routines: [{ id: 'r1', name: 'Upper' }] });
+    useHistoryStore.setState({ history: [{ id: 'h1' }] });
+
+    seedEmptyState();
+
+    expect(useUserStore.getState().profile.name).toBe('');
+    expect(useRoutineStore.getState().routines).toHaveLength(0);
+    expect(useHistoryStore.getState().history).toHaveLength(0);
+  });
+
+  it('los stores arrancan sin hidratar para esperar al usuario', () => {
+    expect(useRoutineStore.persist.hasHydrated()).toBe(false);
+    expect(useUserStore.persist.hasHydrated()).toBe(false);
+    expect(useHistoryStore.persist.hasHydrated()).toBe(false);
+  });
+
+  it('las acciones sobreviven a un reset', () => {
+    resetStores();
+    expect(typeof useRoutineStore.getState().addRoutine).toBe('function');
+    expect(typeof useUserStore.getState().setProfile).toBe('function');
+    expect(typeof useHistoryStore.getState().addSession).toBe('function');
+  });
 });
 
 describe('useRoutineStore', () => {

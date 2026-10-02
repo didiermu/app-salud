@@ -1,0 +1,83 @@
+rules_version = '2';
+
+// Reglas de aislamiento por usuario para la colección `app_storage`.
+//
+// Convención de ids de documento (ver src/services/storageScope.js):
+//   - Documentos por usuario:  `${uid}__${key}`   (perfil, rutinas, historial)
+//   - Documentos globales:    `${key}`            (catálogo, biblioteca semilla)
+//
+// Mientras estas reglas no estén desplegadas el proyecto sigue en modo test
+// y cualquier persona puede leer todos los datos. Despliega con:
+//   npx firebase deploy --only firestore:rules
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /app_storage/{docId} {
+
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner() {
+        return isSignedIn()
+            && docId.split('__').size() == 2
+            && docId.split('__')[0] == request.auth.uid;
+      }
+
+      // El dueño de los datos históricos. Solo puede leer los documentos
+      // heredados sin scope para copiarlos a su scope la primera vez que
+      // entra (ver src/services/migrationService.js).
+      function isLegacyOwner() {
+        return isSignedIn()
+            && request.auth.token.email == 'didiermu3@gmail.com';
+      }
+
+      // ---- Documentos globales, compartidos por todos los usuarios ----
+
+      // Catálogo de 873 ejercicios y biblioteca semilla de personalizados.
+      // Idénticos para todos, así que cualquier usuario autenticado los lee.
+      allow get, list: if isSignedIn()
+            && (docId == 'exercise-catalog-cache' || docId == 'exercise-library-seed');
+
+      // El caché del catálogo lo escribe el primer cliente que lo puebla.
+      allow create, update: if isSignedIn()
+            && docId == 'exercise-catalog-cache'
+            && request.resource.data.keys().hasOnly(['value', 'updatedAt'])
+            && request.resource.data.value is string
+            && request.resource.data.value.size() < 900000;
+
+      // ---- Documentos por usuario ----
+
+      // Cada usuario solo puede leer y escribir lo suyo: nada de rutinas
+      // ni historial cruzados entre cuentas.
+      allow get, list, create, update, delete: if isOwner();
+
+      // ---- Migración de los datos heredados (solo el dueño) ----
+
+      // Lectura de `user-storage`, `routine-storage` y `history-storage`
+      // para el copiado inicial a `${uid}__${key}`. Se puede dejar así:
+      // no permite escribir ni borrar nada ajeno.
+      allow get: if isLegacyOwner()
+            && (docId == 'user-storage'
+                || docId == 'routine-storage'
+                || docId == 'history-storage');
+
+      // La biblioteca semilla se publica una única vez, desde el propio
+      // cliente del dueño, y después queda congelada para todos.
+      allow create: if isLegacyOwner()
+            && docId == 'exercise-library-seed'
+            && request.resource.data.keys().hasOnly(['value', 'updatedAt'])
+            && request.resource.data.value is string
+            && request.resource.data.value.size() < 900000;
+
+      // El flag de migración solo lo escribe el dueño.
+      allow create, update: if isLegacyOwner() && docId == 'legacy-migration-flag';
+    }
+
+    // Cualquier otra colección queda cerrada.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

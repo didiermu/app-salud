@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 // TODO: REEMPLAZA ESTE OBJETO CON LA CONFIGURACIÓN REAL DE TU PROYECTO DE FIREBASE
 const firebaseConfig = {
@@ -14,14 +15,17 @@ const firebaseConfig = {
 
 let app;
 let db;
+let auth;
 
 try {
     // Inicializamos Firebase
     app = initializeApp(firebaseConfig);
     // Inicializamos Firestore (Base de datos)
     db = getFirestore(app);
+    // Inicializamos Authentication (Google)
+    auth = getAuth(app);
 } catch (error) {
     console.error("Error al inicializar Firebase. Revisa tu configuración.", error);
 }
 
-export { db };
+export { db, auth };

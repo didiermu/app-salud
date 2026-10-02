@@ -6,7 +6,9 @@ import Catalog from './pages/Catalog';
 import Routines from './pages/Routines';
 import Workout from './pages/Workout';
 import CountdownTimer from './components/CountdownTimer';
-import { LayoutDashboard, User, Dumbbell, Search, Activity, Timer, X } from 'lucide-react';
+import AuthGate from './components/AuthGate';
+import { useAuthStore } from './store/useAuthStore';
+import { LayoutDashboard, User, Dumbbell, Search, Activity, Timer, X, LogOut } from 'lucide-react';
 import clsx from 'clsx';
 
 // Componente para restaurar el scroll al cambiar de página
@@ -23,6 +25,9 @@ const ScrollToTop = () => {
 // Componente para manejar la estructura de navegación dinámica
 const Layout = ({ children }) => {
   const [showTimerModal, setShowTimerModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
   const navItems = [
     { path: '/', label: 'Inicio', icon: <LayoutDashboard size={24} /> },
     { path: '/catalog', label: 'Explorar', icon: <Search size={24} /> },
@@ -64,6 +69,21 @@ const Layout = ({ children }) => {
                 <span className="uppercase tracking-widest text-[10px]">{item.label}</span>
               </NavLink>
             ))}
+            {user?.photoURL && (
+              <img
+                src={user.photoURL}
+                alt={user.displayName || 'Tu perfil'}
+                referrerPolicy="no-referrer"
+                className="w-10 h-10 rounded-2xl object-cover border-2 border-neutral-100 ml-1"
+              />
+            )}
+            <button
+              onClick={() => setShowLogoutModal(true)}
+              className="p-2.5 rounded-2xl text-neutral-400 hover:bg-red-50 hover:text-red-500 transition-all"
+              title="Cerrar sesión"
+            >
+              <LogOut size={20} />
+            </button>
           </div>
         </div>
       </nav>
@@ -109,6 +129,35 @@ const Layout = ({ children }) => {
         </div>
       </nav>
 
+      {/* Barra de cuenta (Solo Mobile) */}
+      <div className="md:hidden bg-white border-b border-neutral-100 px-4 h-14 flex items-center justify-between">
+        <div className="flex items-center gap-3 min-w-0">
+          {user?.photoURL && (
+            <img
+              src={user.photoURL}
+              alt={user.displayName || 'Tu perfil'}
+              referrerPolicy="no-referrer"
+              className="w-9 h-9 rounded-xl object-cover bg-neutral-100 shrink-0"
+            />
+          )}
+          <div className="min-w-0">
+            <p className="text-[11px] font-black text-neutral-900 truncate leading-tight">
+              {user?.displayName || 'Atleta'}
+            </p>
+            <p className="text-[9px] font-bold text-neutral-400 truncate leading-tight">
+              {user?.email}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={() => setShowLogoutModal(true)}
+          className="p-2.5 rounded-2xl text-neutral-400 hover:bg-red-50 hover:text-red-500 transition-all shrink-0"
+          title="Cerrar sesión"
+        >
+          <LogOut size={18} />
+        </button>
+      </div>
+
       {/* Modal Cronómetro */}
       {showTimerModal && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 animate-in fade-in duration-300">
@@ -121,6 +170,45 @@ const Layout = ({ children }) => {
               <X size={18} />
             </button>
             <CountdownTimer />
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmación: Cerrar Sesión */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div
+            className="absolute inset-0 bg-neutral-900/90 backdrop-blur-md"
+            onClick={() => setShowLogoutModal(false)}
+          />
+          <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-10 relative z-10 flex flex-col items-center text-center shadow-2xl">
+            <div className="w-20 h-20 rounded-full bg-red-50 text-red-500 flex items-center justify-center mb-6 shadow-xl">
+              <LogOut size={36} />
+            </div>
+            <h3 className="text-3xl font-black text-neutral-900 uppercase tracking-tighter mb-2">
+              ¿Cerrar Sesión?
+            </h3>
+            <p className="text-neutral-500 font-bold text-sm mb-8 leading-relaxed">
+              Tus rutinas y registros se guardan en la nube. Podrás volver a entrar
+              cuando quieras con tu cuenta de Google.
+            </p>
+            <div className="flex gap-3 w-full">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="flex-1 py-4 bg-neutral-100 text-neutral-600 font-bold rounded-2xl hover:bg-neutral-200 transition-colors uppercase tracking-widest text-[10px]"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  setShowLogoutModal(false);
+                  logout();
+                }}
+                className="flex-1 py-4 bg-red-500 text-white font-black rounded-2xl hover:bg-red-600 transition-all shadow-xl shadow-red-200 uppercase tracking-widest text-[10px]"
+              >
+                Salir
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -138,15 +226,17 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/catalog" element={<Catalog />} />
-          <Route path="/routines" element={<Routines />} />
-          <Route path="/workout/:id" element={<Workout />} />
-        </Routes>
-      </Layout>
+      <AuthGate>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/catalog" element={<Catalog />} />
+            <Route path="/routines" element={<Routines />} />
+            <Route path="/workout/:id" element={<Workout />} />
+          </Routes>
+        </Layout>
+      </AuthGate>
     </Router>
   );
 }

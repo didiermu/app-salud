@@ -3,6 +3,7 @@ import { fetchAllExercises } from '../services/exerciseService';
 import { uploadToCloudinary } from '../services/cloudinaryService';
 import { Search, Info, Plus, Loader2, X, Dumbbell, Trophy, Edit2, CheckCircle2, RotateCw, Video } from 'lucide-react';
 import { useRoutineStore } from '../store/useStore';
+import { useAuthStore } from '../store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
 import clsx from 'clsx';
@@ -24,6 +25,8 @@ const Catalog = () => {
   
   const loaderRef = useRef(null);
   const { toggleSelection, selectedExercises, customExercises, addCustomExercise, deleteCustomExercise, editCustomExercise } = useRoutineStore();
+  // Al cambiar de usuario los ejercicios personalizados son otros: recargamos.
+  const userId = useAuthStore((state) => state.user?.uid);
   const ITEMS_PER_PAGE = 12;
 
   const isSelected = (id) => selectedExercises.some(e => e.id === id);
@@ -49,7 +52,7 @@ const Catalog = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     load();
-  }, []);
+  }, [userId]);
 
   // 2. BÚSQUEDA GLOBAL: Filtramos sobre la lista completa 'allExercises'
   const filteredExercises = useMemo(() => {

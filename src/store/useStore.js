@@ -3,16 +3,35 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { db } from '../firebase';
 import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import { DEFAULT_SEQUENCE_MODE } from '../services/routineSequence';
+import { scopedDocId, STORAGE_KEYS } from '../services/storageScope';
 
 // -----------------------------------------------------------------
 // MOTOR DE ALMACENAMIENTO (SOLO FIREBASE)
 // -----------------------------------------------------------------
 // Firestore es la ÚNICA fuente de verdad. No se usa localStorage.
+//
+// Cada documento se aísla por uid (`${uid}__${name}`) para que las rutinas
+// y el historial de un usuario nunca se mezclen con los de otro. Las
+// claves de `GLOBAL_DOCS` (catálogo y biblioteca semilla) se comparten.
+let activeUid = null;
+
+/** Fija el usuario activo. Lo llama AuthGate tras resolver la sesión. */
+export const setActiveUid = (uid) => {
+  activeUid = uid || null;
+};
+
+export const getActiveUid = () => activeUid;
+
+const resolveDocId = (name) => scopedDocId(activeUid, name);
+
 const firebaseStorage = {
   getItem: async (name) => {
     try {
       if (!db) throw new Error("Firebase no configurado");
-      const docRef = doc(db, 'app_storage', name);
+      const docId = resolveDocId(name);
+      // Sin sesión no hay documento con scope: no se lee nada.
+      if (!docId) return null;
+      const docRef = doc(db, 'app_storage', docId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         return docSnap.data().value;
@@ -26,12 +45,15 @@ const firebaseStorage = {
   setItem: async (name, value) => {
     try {
       if (!db) throw new Error("Firebase no configurado");
+      const docId = resolveDocId(name);
+      // Sin sesión no se escribe nada: evita crear docs huérfanos.
+      if (!docId) return;
       const sizeBytes = new TextEncoder().encode(value).length;
       if (sizeBytes > 950 * 1024) {
         console.warn(`[Storage] ${name} demasiado grande (${Math.round(sizeBytes / 1024)}KB). No se guarda.`);
         return;
       }
-      const docRef = doc(db, 'app_storage', name);
+      const docRef = doc(db, 'app_storage', docId);
       await setDoc(docRef, { value, updatedAt: new Date().toISOString() });
     } catch (err) {
       console.error(`[Storage] Error guardando ${name} en Firestore:`, err.message);
@@ -40,7 +62,9 @@ const firebaseStorage = {
   removeItem: async (name) => {
     try {
       if (!db) throw new Error("Firebase no configurado");
-      const docRef = doc(db, 'app_storage', name);
+      const docId = resolveDocId(name);
+      if (!docId) return;
+      const docRef = doc(db, 'app_storage', docId);
       await deleteDoc(docRef);
     } catch (err) {
       console.error(`[Storage] Error eliminando ${name} de Firestore:`, err.message);
@@ -50,9 +74,55 @@ const firebaseStorage = {
 
 const customStorage = createJSONStorage(() => firebaseStorage);
 
+/**
+ * Los stores se crean sin rehidratar (skipHydration) porque en ese
+ * momento todavía no sabemos quién es el usuario. `hydrateStores()` se
+ * llama desde AuthGate una vez resuelta la sesión, y `resetStores()`
+ * al cerrar sesión para que el siguiente usuario no vea datos ajenos en
+ * memoria antes de que termine su rehidratación.
+ */
+const HYDRATION = { skipHydration: true, storage: customStorage };
+
+export const hydrateStores = async () => {
+  await Promise.all([
+    useUserStore.persist.rehydrate(),
+    useRoutineStore.persist.rehydrate(),
+    useHistoryStore.persist.rehydrate(),
+  ]);
+};
+
+export const resetStores = () => {
+  useUserStore.setState(INITIAL_USER_STATE, false);
+  useRoutineStore.setState(INITIAL_ROUTINE_STATE, false);
+  useHistoryStore.setState(INITIAL_HISTORY_STATE, false);
+};
+
 // -----------------------------------------------------------------
 // STORES
 // -----------------------------------------------------------------
+
+const INITIAL_USER_STATE = {
+  profile: {
+    name: '',
+    age: '',
+    weight: '',
+    height: '',
+    imc: null,
+    imcStatus: '',
+  },
+  healthHistory: [],
+};
+
+const INITIAL_ROUTINE_STATE = {
+  routines: [],
+  selectedExercises: [],
+  customExercises: [],
+  editingRoutineId: null,
+};
+
+const INITIAL_HISTORY_STATE = {
+  history: [],
+};
 
 export const useUserStore = create(
   persist(
@@ -83,9 +153,9 @@ export const useUserStore = create(
         healthHistory: state.healthHistory.filter(r => r.date !== date)
       })),
     }),
-    { 
-      name: 'user-storage',
-      storage: customStorage
+    {
+      name: STORAGE_KEYS.user,
+      ...HYDRATION
     }
   )
 );
@@ -206,9 +276,9 @@ export const useRoutineStore = create(
         )
       })),
     }),
-    { 
-      name: 'routine-storage',
-      storage: customStorage,
+    {
+      name: STORAGE_KEYS.routine,
+      ...HYDRATION,
       partialize: (state) => ({
         routines: state.routines,
         customExercises: state.customExercises,
@@ -259,9 +329,9 @@ export const useHistoryStore = create(
         }]
       })),
     }),
-    { 
-      name: 'history-storage',
-      storage: customStorage
+    {
+      name: STORAGE_KEYS.history,
+      ...HYDRATION
     }
   )
 );

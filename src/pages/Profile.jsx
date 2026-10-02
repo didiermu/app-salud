@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useUserStore } from '../store/useStore';
 import { calculateIMC } from '../utils/healthUtils';
-import { User, Scale, Ruler, Calendar, History, Trash2 } from 'lucide-react';
+import { User, Scale, Ruler, Calendar, History, Trash2, Info } from 'lucide-react';
 import Modal from '../components/Modal';
 import clsx from 'clsx';
 
