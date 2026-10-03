@@ -71,7 +71,9 @@ service cloud.firestore {
             && request.resource.data.value is string
             && request.resource.data.value.size() < 900000;
 
-      // El flag de migración solo lo escribe el dueño.
+      // El dueño necesita leer el flag para hacer la migración idempotente,
+      // y solo él puede crearlo o actualizarlo.
+      allow get: if isLegacyOwner() && docId == 'legacy-migration-flag';
       allow create, update: if isLegacyOwner() && docId == 'legacy-migration-flag';
     }
 

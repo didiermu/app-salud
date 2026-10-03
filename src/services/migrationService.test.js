@@ -109,6 +109,22 @@ describe('migrateLegacyData', () => {
     expect(readState(scopedDocId(DIDIER.uid, STORAGE_KEYS.history)).history).toHaveLength(0);
   });
 
+  it('vuelve a copiar los datos heredados si Didier inicia con un UID nuevo', async () => {
+    setLegacyDocs();
+    docs.set('legacy-migration-flag', {
+      migratedBy: 'uid-google-anterior',
+      email: LEGACY_OWNER_EMAIL,
+    });
+    const newAccount = { ...DIDIER, uid: 'uid-email-nuevo' };
+
+    await migrateLegacyData(newAccount);
+
+    expect(readState(scopedDocId(newAccount.uid, STORAGE_KEYS.user)).profile.name).toBe('Didier');
+    expect(readState(scopedDocId(newAccount.uid, STORAGE_KEYS.routine)).routines).toHaveLength(1);
+    expect(readState(scopedDocId(newAccount.uid, STORAGE_KEYS.history)).history).toHaveLength(1);
+    expect(docs.get('legacy-migration-flag').migratedBy).toBe(newAccount.uid);
+  });
+
   it('no pisa datos que el usuario ya tenía en su scope', async () => {
     docs.set(scopedDocId(DIDIER.uid, STORAGE_KEYS.routine), {
       value: legacyBlob({ routines: [{ id: 'mia', name: 'Mi rutina' }], customExercises: [] }),

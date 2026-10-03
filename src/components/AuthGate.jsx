@@ -36,6 +36,7 @@ const AuthGate = ({ children }) => {
     const setMigrating = useAuthStore((state) => state.setMigrating);
     const migrating = useAuthStore((state) => state.migrating);
     const [ready, setReady] = useState(false);
+    const [preparationError, setPreparationError] = useState(null);
 
     useEffect(() => {
         const cancelledRef = { current: false };
@@ -53,6 +54,7 @@ const AuthGate = ({ children }) => {
             }
 
             setReady(false);
+            setPreparationError(null);
             setMigrating(true);
 
             try {
@@ -73,6 +75,7 @@ const AuthGate = ({ children }) => {
                     "[AuthGate] Error preparando los datos del usuario:",
                     error,
                 );
+                setPreparationError(error);
             } finally {
                 if (!cancelledRef.current) {
                     setMigrating(false);
@@ -108,6 +111,25 @@ const AuthGate = ({ children }) => {
     }, [init, setMigrating]);
 
     if (!user) return <Login />;
+    if (preparationError) {
+        return (
+            <div className="min-h-[100dvh] bg-neutral-50 flex items-center justify-center px-6 font-sans">
+                <div className="w-full max-w-md rounded-2xl border border-red-100 bg-white p-8 text-center shadow-xl">
+                    <h1 className="text-lg font-black text-neutral-900">No pudimos recuperar tus datos</h1>
+                    <p className="mt-3 text-sm leading-relaxed text-neutral-600">
+                        No mostraremos una cuenta vacía para evitar que tus datos se sobrescriban. Revisa la conexión y vuelve a intentarlo.
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => window.location.reload()}
+                        className="mt-6 w-full rounded-xl bg-neutral-900 px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-neutral-700"
+                    >
+                        Reintentar
+                    </button>
+                </div>
+            </div>
+        );
+    }
     if (initializing || migrating || !ready) {
         return (
             <SplashScreen
