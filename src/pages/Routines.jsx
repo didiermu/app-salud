@@ -976,6 +976,72 @@ const SortableExerciseItem = ({
                         className="w-full bg-white border border-neutral-200 rounded-lg p-2 text-center font-bold text-sm focus:border-neutral-900 outline-none transition-colors"
                     />
                 </div>
+                <div className="flex flex-col flex-1 min-w-[60px]">
+                    <label className="text-[9px] font-black uppercase text-neutral-400 mb-1">
+                        Repeticiones
+                    </label>
+                    <input
+                        type="number"
+                        min="1"
+                        step="1"
+                        value={exercise.reps ?? 12}
+                        onChange={(e) =>
+                            updateExerciseConfig(
+                                exercise.id,
+                                "reps",
+                                e.target.value === ""
+                                    ? ""
+                                    : Math.max(1, Number(e.target.value)),
+                            )
+                        }
+                        aria-label={`Repeticiones para ${exercise.name}`}
+                        className="w-full bg-white border border-neutral-200 rounded-lg p-2 text-center font-bold text-sm focus:border-neutral-900 outline-none transition-colors"
+                    />
+                </div>
+                <div className="flex flex-col flex-1 min-w-[60px]">
+                    <label className="text-[9px] font-black uppercase text-neutral-400 mb-1">
+                        Peso (kg)
+                    </label>
+                    <input
+                        type="number"
+                        min="0"
+                        step="0.5"
+                        value={exercise.weight ?? 0}
+                        onChange={(e) =>
+                            updateExerciseConfig(
+                                exercise.id,
+                                "weight",
+                                e.target.value === ""
+                                    ? ""
+                                    : Math.max(0, Number(e.target.value)),
+                            )
+                        }
+                        aria-label={`Peso en kilogramos para ${exercise.name}`}
+                        className="w-full bg-white border border-neutral-200 rounded-lg p-2 text-center font-bold text-sm focus:border-neutral-900 outline-none transition-colors"
+                    />
+                </div>
+                <div className="flex flex-col flex-1 min-w-[70px]">
+                    <label className="text-[9px] font-black uppercase text-neutral-400 mb-1">
+                        Descanso (s)
+                    </label>
+                    <input
+                        type="number"
+                        min="0"
+                        step="5"
+                        value={exercise.rest ?? 60}
+                        onChange={(e) =>
+                            updateExerciseConfig(
+                                exercise.id,
+                                "rest",
+                                e.target.value === ""
+                                    ? ""
+                                    : Math.max(0, Number(e.target.value)),
+                            )
+                        }
+                        aria-label={`Descanso en segundos para ${exercise.name}`}
+                        className="w-full bg-white border border-neutral-200 rounded-lg p-2 text-center font-bold text-sm focus:border-neutral-900 outline-none transition-colors"
+                    />
+                </div>
                 <div className="flex flex-col flex-1 min-w-[150px]">
                     <label className="text-[9px] font-black uppercase text-neutral-400 mb-1">
                         Secuencia

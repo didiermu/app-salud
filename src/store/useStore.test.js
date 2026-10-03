@@ -134,6 +134,21 @@ describe("useRoutineStore", () => {
         useRoutineStore.getState().updateExerciseConfig("ex-1", "sets", 5);
         expect(useRoutineStore.getState().selectedExercises[0].sets).toBe(5);
     });
+    
+        it("updateExerciseConfig permite modificar el tiempo de descanso", () => {
+            useRoutineStore.getState().toggleSelection(exercise);
+            useRoutineStore.getState().updateExerciseConfig("ex-1", "rest", 90);
+            expect(useRoutineStore.getState().selectedExercises[0].rest).toBe(90);
+        });
+
+        it("updateExerciseConfig permite modificar repeticiones y peso", () => {
+            useRoutineStore.getState().toggleSelection(exercise);
+            useRoutineStore.getState().updateExerciseConfig("ex-1", "reps", 10);
+            useRoutineStore.getState().updateExerciseConfig("ex-1", "weight", 25.5);
+
+            expect(useRoutineStore.getState().selectedExercises[0].reps).toBe(10);
+            expect(useRoutineStore.getState().selectedExercises[0].weight).toBe(25.5);
+        });
 
     it("updateExerciseConfig cambia la secuencia del ejercicio a alternado y de vuelta", () => {
         useRoutineStore.getState().toggleSelection(exercise);

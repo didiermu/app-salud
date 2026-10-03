@@ -115,9 +115,13 @@ const AuthGate = ({ children }) => {
         return (
             <div className="min-h-[100dvh] bg-neutral-50 flex items-center justify-center px-6 font-sans">
                 <div className="w-full max-w-md rounded-2xl border border-red-100 bg-white p-8 text-center shadow-xl">
-                    <h1 className="text-lg font-black text-neutral-900">No pudimos recuperar tus datos</h1>
+                    <h1 className="text-lg font-black text-neutral-900">
+                        No pudimos recuperar tus datos
+                    </h1>
                     <p className="mt-3 text-sm leading-relaxed text-neutral-600">
-                        No mostraremos una cuenta vacía para evitar que tus datos se sobrescriban. Revisa la conexión y vuelve a intentarlo.
+                        No mostraremos una cuenta vacía para evitar que tus
+                        datos se sobrescriban. Revisa la conexión y vuelve a
+                        intentarlo.
                     </p>
                     <button
                         type="button"
