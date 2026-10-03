@@ -250,8 +250,8 @@ const Routines = () => {
             >
                 {/* Builder Section */}
                 {isBuilding && (
-                    <div className="lg:col-span-2 space-y-6 animate-in fade-in zoom-in-95 duration-500">
-                        <div className="bg-white border-2 border-neutral-900 shadow-2xl rounded-2xl p-8 space-y-8 relative overflow-hidden">
+                    <div className="lg:col-span-2 sticky top-[100px] h-[85vh] overflow-y-scroll space-y-6 animate-in fade-in zoom-in-95 duration-500">
+                        <div className="bg-white border-2 border-neutral-900 shadow-2xl rounded-2xl p-8 space-y-8 relative">
                             <div className="absolute top-0 left-0 right-0 h-2 bg-neutral-900" />
                             <div className="flex justify-between items-center">
                                 <h3 className="text-xl font-bold text-neutral-900 flex items-center gap-2">

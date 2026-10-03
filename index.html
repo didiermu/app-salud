@@ -1,24 +1,27 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <script>
-      try {
-        if (localStorage.getItem('saludapp-theme') === 'dark') {
-          document.documentElement.classList.add('dark');
-        }
-      } catch {}
-    </script>
-    <title>Salud & Rutinas</title>
-  </head>
-  <body class="bg-neutral-50 text-neutral-900">
-    <div id="root"></div>
-    <script>window.FIREBASE_APP_ID = 'app-salud-e7a98';</script>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    try {
+      if (localStorage.getItem('saludapp-theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+    } catch { }
+  </script>
+  <title>Salud & Rutinas</title>
+</head>
+
+<body class="bg-neutral-50 text-neutral-900">
+  <div id="root"></div>
+  <script>window.FIREBASE_APP_ID = 'app-salud-e7a98';</script>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>

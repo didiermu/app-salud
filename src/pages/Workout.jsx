@@ -353,7 +353,7 @@ const Workout = () => {
                     ref={videoRef}
                     key={activeStep.id}
                     src={videoUrl}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                     autoPlay
                     loop
                     muted
@@ -466,7 +466,7 @@ const Workout = () => {
                 {/* TARJETA PRINCIPAL (BANNER) */}
                 <div
                     className={clsx(
-                        "lg:col-span-7 bg-white border border-neutral-200 overflow-hidden rounded-2xl flex items-center justify-center transition-all duration-700 shadow-xl",
+                        "lg:col-span-7 h-[80vh] bg-white border border-neutral-200 overflow-hidden rounded-2xl flex items-center justify-center transition-all duration-700 shadow-xl sticky top-[100px]",
                         isResting
                             ? "border-green-500 scale-[1.02]"
                             : isExerciseTimer
@@ -477,9 +477,7 @@ const Workout = () => {
                     <div
                         style={{
                             width: videoDims.w ? `${videoDims.w}px` : "100%",
-                            height: videoDims.h
-                                ? `${videoDims.h}px`
-                                : undefined,
+                            height: videoDims.h ? `${videoDims.h}px` : "100%",
                         }}
                         className="bg-neutral-200 relative overflow-hidden"
                     >

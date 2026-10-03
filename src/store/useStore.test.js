@@ -199,13 +199,22 @@ describe("useRoutineStore", () => {
     it("conserva la fecha de creación al editar una rutina", () => {
         const createdAt = "2025-03-10T12:00:00.000Z";
         useRoutineStore.setState({
-            routines: [{ id: "routine-old", name: "Anterior", exercises: [], createdAt }],
+            routines: [
+                {
+                    id: "routine-old",
+                    name: "Anterior",
+                    exercises: [],
+                    createdAt,
+                },
+            ],
         });
         useRoutineStore.getState().loadRoutineForEditing("routine-old");
 
         useRoutineStore.getState().addRoutine("Anterior actualizada");
 
-        expect(useRoutineStore.getState().routines[0].createdAt).toBe(createdAt);
+        expect(useRoutineStore.getState().routines[0].createdAt).toBe(
+            createdAt,
+        );
     });
 
     it("updateRoutineExercises mantiene el N configurado y la secuencia de un alternado", () => {

@@ -79,8 +79,8 @@ const Login = () => {
     };
 
     return (
-            <div className="relative min-h-[100dvh] bg-neutral-50 flex flex-col items-center justify-center px-6 py-12 font-sans">
-                <ThemeToggle className="fixed right-4 top-4 z-50" />
+        <div className="relative min-h-[100dvh] bg-neutral-50 flex flex-col items-center justify-center px-6 py-12 font-sans">
+            <ThemeToggle className="fixed right-4 top-4 z-50" />
             <div className="w-full max-w-md space-y-10">
                 <div className="text-center space-y-4">
                     <div className="w-20 h-20 bg-neutral-900 text-white rounded-[2rem] flex items-center justify-center mx-auto shadow-2xl shadow-neutral-200">
