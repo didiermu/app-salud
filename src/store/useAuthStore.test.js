@@ -109,7 +109,9 @@ describe("useAuthStore", () => {
     });
 
     it("inicia sesión con correo y guarda el usuario", async () => {
-        await useAuthStore.getState().loginWithEmail("didier@example.com", "clave123");
+        await useAuthStore
+            .getState()
+            .loginWithEmail("didier@example.com", "clave123");
 
         expect(useAuthStore.getState().user).toEqual(DIDIER);
         expect(useAuthStore.getState().error).toBeNull();
@@ -118,9 +120,15 @@ describe("useAuthStore", () => {
     it("registra por correo con nombre y guarda el usuario", async () => {
         const { signUpWithEmail } = await import("../services/authService");
 
-        await useAuthStore.getState().registerWithEmail("ana@example.com", "clave123", "Ana");
+        await useAuthStore
+            .getState()
+            .registerWithEmail("ana@example.com", "clave123", "Ana");
 
-        expect(signUpWithEmail).toHaveBeenCalledWith("ana@example.com", "clave123", "Ana");
+        expect(signUpWithEmail).toHaveBeenCalledWith(
+            "ana@example.com",
+            "clave123",
+            "Ana",
+        );
         expect(useAuthStore.getState().user).toEqual(DIDIER);
     });
 

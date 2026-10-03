@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import { hydrateStores, resetStores, setActiveUid, useUserStore } from "../store/useStore";
+import {
+    hydrateStores,
+    resetStores,
+    setActiveUid,
+    useUserStore,
+} from "../store/useStore";
 import { prepareUserData } from "../services/migrationService";
 import Login from "../pages/Login";
 
@@ -55,8 +60,13 @@ const AuthGate = ({ children }) => {
                 if (cancelledRef.current) return;
                 setActiveUid(authUser.uid);
                 await hydrateStores();
-                if (!useUserStore.getState().profile.name && authUser.displayName) {
-                    useUserStore.getState().setProfileName(authUser.displayName);
+                if (
+                    !useUserStore.getState().profile.name &&
+                    authUser.displayName
+                ) {
+                    useUserStore
+                        .getState()
+                        .setProfileName(authUser.displayName);
                 }
             } catch (error) {
                 console.error(
