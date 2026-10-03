@@ -1,56 +1,99 @@
 import { useState, useEffect } from "react";
 import { useRoutineStore, useHistoryStore } from "../store/useStore";
 import { uploadToCloudinary } from "../services/cloudinaryService";
-import { Dumbbell, Trash2, Play, Save, X, Plus, Edit2, CheckCircle2, GripVertical, Trophy, Upload, Loader2, Video } from 'lucide-react';
+import {
+    Dumbbell,
+    Trash2,
+    Play,
+    Save,
+    X,
+    Plus,
+    Edit2,
+    CheckCircle2,
+    GripVertical,
+    Trophy,
+    Upload,
+    Loader2,
+    Video,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import Modal from "../components/Modal";
 import ExerciseLoadHistory from "../components/ExerciseLoadHistory";
 import { SEQUENCE_MODES, isAlternated } from "../services/routineSequence";
 import clsx from "clsx";
 import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragOverlay,
-} from '@dnd-kit/core';
+    DndContext,
+    closestCenter,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragOverlay,
+} from "@dnd-kit/core";
 import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+    arrayMove,
+    SortableContext,
+    useSortable,
+    verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 const Routines = () => {
-    const { routines, selectedExercises, updateExerciseConfig, moveExercise, reorderExercises, addRoutine, deleteRoutine, toggleSelection, editingRoutineId, loadRoutineForEditing, cancelEditing, editCustomExercise } = useRoutineStore();
+    const {
+        routines,
+        selectedExercises,
+        updateExerciseConfig,
+        moveExercise,
+        reorderExercises,
+        addRoutine,
+        deleteRoutine,
+        toggleSelection,
+        editingRoutineId,
+        loadRoutineForEditing,
+        cancelEditing,
+        editCustomExercise,
+    } = useRoutineStore();
     const { addExerciseSnapshot } = useHistoryStore();
 
     const [routineName, setRoutineName] = useState("");
     const [selectedExercise, setSelectedExercise] = useState(null);
 
     // Estado para el Modal Personalizado
-    const [modal, setModal] = useState({ isOpen: false, type: "info", title: "", message: "", onConfirm: null });
+    const [modal, setModal] = useState({
+        isOpen: false,
+        type: "info",
+        title: "",
+        message: "",
+        onConfirm: null,
+    });
 
     // Estado para el formulario de edición de ejercicios
     const [showCustomForm, setShowCustomForm] = useState(false);
     const [editingCustomId, setEditingCustomId] = useState(null);
-    const [customForm, setCustomForm] = useState({ name: '', description: '', target: '', bodyPart: '', equipment: '', imageUrl: '', videoUrl: '', hasTimer: false, timerDuration: 60 });
+    const [customForm, setCustomForm] = useState({
+        name: "",
+        description: "",
+        target: "",
+        bodyPart: "",
+        equipment: "",
+        imageUrl: "",
+        videoUrl: "",
+        hasTimer: false,
+        timerDuration: 60,
+    });
     const [uploadingBanner, setUploadingBanner] = useState(false);
     const [uploadingVideo, setUploadingVideo] = useState(false);
 
     const openEditForm = (ex) => {
         setCustomForm({
-            name: ex.name || '',
-            description: ex.description || '',
-            target: ex.target || '',
-            bodyPart: ex.bodyPart || '',
-            equipment: ex.equipment || '',
-            imageUrl: ex.imageUrl || '',
-            videoUrl: ex.videoUrl || '',
+            name: ex.name || "",
+            description: ex.description || "",
+            target: ex.target || "",
+            bodyPart: ex.bodyPart || "",
+            equipment: ex.equipment || "",
+            imageUrl: ex.imageUrl || "",
+            videoUrl: ex.videoUrl || "",
             hasTimer: ex.hasTimer || false,
-            timerDuration: ex.timerDuration || 60
+            timerDuration: ex.timerDuration || 60,
         });
         setEditingCustomId(ex.id);
         setShowCustomForm(true);
@@ -59,7 +102,17 @@ const Routines = () => {
     const closeCustomForm = () => {
         setShowCustomForm(false);
         setEditingCustomId(null);
-        setCustomForm({ name: '', description: '', target: '', bodyPart: '', equipment: '', imageUrl: '', videoUrl: '', hasTimer: false, timerDuration: 60 });
+        setCustomForm({
+            name: "",
+            description: "",
+            target: "",
+            bodyPart: "",
+            equipment: "",
+            imageUrl: "",
+            videoUrl: "",
+            hasTimer: false,
+            timerDuration: 60,
+        });
     };
 
     const handleCreateCustom = (e) => {
@@ -73,14 +126,24 @@ const Routines = () => {
         const file = e.target.files[0];
         if (!file) return;
         if (file.size > 5 * 1024 * 1024) {
-            return setModal({ isOpen: true, type: "info", title: "Imagen muy pesada", message: "Por favor sube una imagen de menos de 5MB." });
+            return setModal({
+                isOpen: true,
+                type: "info",
+                title: "Imagen muy pesada",
+                message: "Por favor sube una imagen de menos de 5MB.",
+            });
         }
         setUploadingBanner(true);
         try {
-            const url = await uploadToCloudinary({ file, folder: 'banners' });
-            setCustomForm(prev => ({ ...prev, imageUrl: url }));
+            const url = await uploadToCloudinary({ file, folder: "banners" });
+            setCustomForm((prev) => ({ ...prev, imageUrl: url }));
         } catch (error) {
-            setModal({ isOpen: true, type: "info", title: "Error", message: `No se pudo subir la imagen: ${error.message}` });
+            setModal({
+                isOpen: true,
+                type: "info",
+                title: "Error",
+                message: `No se pudo subir la imagen: ${error.message}`,
+            });
         } finally {
             setUploadingBanner(false);
         }
@@ -90,14 +153,24 @@ const Routines = () => {
         const file = e.target.files[0];
         if (!file) return;
         if (file.size > 50 * 1024 * 1024) {
-            return setModal({ isOpen: true, type: "info", title: "Video muy pesado", message: "Por favor sube un video de menos de 50MB." });
+            return setModal({
+                isOpen: true,
+                type: "info",
+                title: "Video muy pesado",
+                message: "Por favor sube un video de menos de 50MB.",
+            });
         }
         setUploadingVideo(true);
         try {
-            const url = await uploadToCloudinary({ file, folder: 'videos' });
-            setCustomForm(prev => ({ ...prev, videoUrl: url }));
+            const url = await uploadToCloudinary({ file, folder: "videos" });
+            setCustomForm((prev) => ({ ...prev, videoUrl: url }));
         } catch (error) {
-            setModal({ isOpen: true, type: "info", title: "Error", message: `No se pudo subir el video: ${error.message}` });
+            setModal({
+                isOpen: true,
+                type: "info",
+                title: "Error",
+                message: `No se pudo subir el video: ${error.message}`,
+            });
         } finally {
             setUploadingVideo(false);
         }
@@ -106,14 +179,16 @@ const Routines = () => {
     // Ir al inicio de la página al abrir el editor de rutina
     useEffect(() => {
         if (editingRoutineId) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: "smooth" });
         }
     }, [editingRoutineId]);
 
     // Sincronizar el nombre si estamos editando una rutina existente
     useEffect(() => {
         if (editingRoutineId) {
-            const routineToEdit = routines.find((r) => r.id === editingRoutineId);
+            const routineToEdit = routines.find(
+                (r) => r.id === editingRoutineId,
+            );
             if (routineToEdit) setRoutineName(routineToEdit.name);
         } else if (selectedExercises.length === 0) {
             setRoutineName("");
@@ -126,7 +201,8 @@ const Routines = () => {
                 isOpen: true,
                 type: "info",
                 title: "Atención",
-                message: "Por favor, dale un nombre a tu rutina antes de guardarla.",
+                message:
+                    "Por favor, dale un nombre a tu rutina antes de guardarla.",
             });
         }
         addRoutine(routineName);
@@ -138,7 +214,9 @@ const Routines = () => {
             isOpen: true,
             type: "success",
             title: "¡Éxito!",
-            message: editingRoutineId ? "La rutina ha sido actualizada correctamente." : "La rutina ha sido guardada correctamente.",
+            message: editingRoutineId
+                ? "La rutina ha sido actualizada correctamente."
+                : "La rutina ha sido guardada correctamente.",
         });
     };
 
@@ -152,7 +230,8 @@ const Routines = () => {
             isOpen: true,
             type: "confirm",
             title: "¿Eliminar Rutina?",
-            message: "Esta acción no se puede deshacer. ¿Estás seguro de que deseas eliminar este plan de entrenamiento?",
+            message:
+                "Esta acción no se puede deshacer. ¿Estás seguro de que deseas eliminar este plan de entrenamiento?",
             onConfirm: () => deleteRoutine(id),
         });
     };
@@ -161,7 +240,12 @@ const Routines = () => {
 
     return (
         <div className="space-y-12 pb-12">
-            <div className={clsx("grid gap-12", isBuilding ? "grid-cols-1 lg:grid-cols-3" : "grid-cols-1")}>
+            <div
+                className={clsx(
+                    "grid gap-12",
+                    isBuilding ? "grid-cols-1 lg:grid-cols-3" : "grid-cols-1",
+                )}
+            >
                 {/* Builder Section */}
                 {isBuilding && (
                     <div className="lg:col-span-2 space-y-6 animate-in fade-in zoom-in-95 duration-500">
@@ -169,14 +253,22 @@ const Routines = () => {
                             <div className="absolute top-0 left-0 right-0 h-2 bg-neutral-900" />
                             <div className="flex justify-between items-center">
                                 <h3 className="text-xl font-bold text-neutral-900 flex items-center gap-2">
-                                    <Plus size={24} className="text-neutral-400" />
-                                    {editingRoutineId ? "Editando Rutina" : "Nuevo Plan"}
+                                    <Plus
+                                        size={24}
+                                        className="text-neutral-400"
+                                    />
+                                    {editingRoutineId
+                                        ? "Editando Rutina"
+                                        : "Nuevo Plan"}
                                 </h3>
                                 <div className="flex items-center gap-4">
                                     <span className="bg-neutral-100 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-neutral-600">
                                         {selectedExercises.length} Ejercicios
                                     </span>
-                                    <button onClick={handleCancelEdit} className="text-xs font-bold text-red-500 hover:text-red-600 transition-colors uppercase">
+                                    <button
+                                        onClick={handleCancelEdit}
+                                        className="text-xs font-bold text-red-500 hover:text-red-600 transition-colors uppercase"
+                                    >
                                         Cancelar
                                     </button>
                                 </div>
@@ -184,11 +276,15 @@ const Routines = () => {
 
                             <div className="space-y-6">
                                 <div className="space-y-2">
-                                    <label className="text-xs font-black uppercase tracking-widest text-neutral-400">Nombre de la Rutina</label>
+                                    <label className="text-xs font-black uppercase tracking-widest text-neutral-400">
+                                        Nombre de la Rutina
+                                    </label>
                                     <input
                                         type="text"
                                         value={routineName}
-                                        onChange={(e) => setRoutineName(e.target.value)}
+                                        onChange={(e) =>
+                                            setRoutineName(e.target.value)
+                                        }
                                         placeholder="Ej. Full Body Lunes"
                                         className="w-full text-2xl font-bold bg-transparent border-b-2 border-neutral-100 focus:border-neutral-900 outline-none pb-2 transition-all placeholder:text-neutral-200"
                                     />
@@ -196,11 +292,15 @@ const Routines = () => {
 
                                 <div className="space-y-4">
                                     <SortableExerciseList
-                                      exercises={selectedExercises}
-                                      setSelectedExercise={setSelectedExercise}
-                                      toggleSelection={toggleSelection}
-                                      updateExerciseConfig={updateExerciseConfig}
-                                      onReorder={reorderExercises}
+                                        exercises={selectedExercises}
+                                        setSelectedExercise={
+                                            setSelectedExercise
+                                        }
+                                        toggleSelection={toggleSelection}
+                                        updateExerciseConfig={
+                                            updateExerciseConfig
+                                        }
+                                        onReorder={reorderExercises}
                                     />
                                 </div>
 
@@ -215,7 +315,10 @@ const Routines = () => {
                                         onClick={handleSave}
                                         className="flex-[2] py-4 bg-neutral-900 text-white font-black rounded-xl flex items-center justify-center gap-2 hover:bg-neutral-800 transition-all shadow-xl shadow-neutral-200 uppercase tracking-widest text-sm"
                                     >
-                                        <Save size={18} /> {editingRoutineId ? "Guardar Cambios" : "Guardar Rutina"}
+                                        <Save size={18} />{" "}
+                                        {editingRoutineId
+                                            ? "Guardar Cambios"
+                                            : "Guardar Rutina"}
                                     </button>
                                 </div>
                             </div>
@@ -226,15 +329,27 @@ const Routines = () => {
                 {/* Saved Routines List (Mis Planes) */}
                 <div className="space-y-6">
                     <div className="flex justify-between items-end border-b border-neutral-200 pb-4">
-                        <h3 className="text-2xl font-black text-neutral-900 uppercase tracking-tighter">Mis Planes</h3>
+                        <h3 className="text-2xl font-black text-neutral-900 uppercase tracking-tighter">
+                            Mis Planes
+                        </h3>
                         {!isBuilding && (
-                            <Link to="/catalog" className="text-xs font-black uppercase tracking-widest text-neutral-400 hover:text-neutral-900 transition-colors flex items-center gap-1">
+                            <Link
+                                to="/catalog"
+                                className="text-xs font-black uppercase tracking-widest text-neutral-400 hover:text-neutral-900 transition-colors flex items-center gap-1"
+                            >
                                 <Plus size={14} /> Crear Nuevo
                             </Link>
                         )}
                     </div>
 
-                    <div className={clsx("grid gap-6", !isBuilding && routines.length > 0 ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1")}>
+                    <div
+                        className={clsx(
+                            "grid gap-6",
+                            !isBuilding && routines.length > 0
+                                ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                                : "grid-cols-1",
+                        )}
+                    >
                         {routines.length > 0 ? (
                             routines.map((routine) => (
                                 <div
@@ -244,14 +359,20 @@ const Routines = () => {
                                     {/* Actions Menu */}
                                     <div className="absolute top-6 right-6 flex gap-2">
                                         <button
-                                            onClick={() => loadRoutineForEditing(routine.id)}
+                                            onClick={() =>
+                                                loadRoutineForEditing(
+                                                    routine.id,
+                                                )
+                                            }
                                             className="p-2 bg-neutral-100 text-neutral-600 hover:text-blue-500 hover:bg-blue-50 rounded-full transition-colors shadow-sm"
                                             title="Editar rutina"
                                         >
                                             <Edit2 size={16} />
                                         </button>
                                         <button
-                                            onClick={() => confirmDelete(routine.id)}
+                                            onClick={() =>
+                                                confirmDelete(routine.id)
+                                            }
                                             className="p-2 bg-neutral-100 text-neutral-600 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors shadow-sm"
                                             title="Eliminar rutina"
                                         >
@@ -260,22 +381,44 @@ const Routines = () => {
                                     </div>
 
                                     <div className="flex-1">
-                                        <h4 className="font-black text-neutral-900 text-2xl uppercase tracking-tighter leading-none mb-2 pr-16">{routine.name}</h4>
-                                        <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest mb-6">{routine.exercises.length} ejercicios</p>
+                                        <h4 className="font-black text-neutral-900 text-2xl uppercase tracking-tighter leading-none mb-2 pr-16">
+                                            {routine.name}
+                                        </h4>
+                                        <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest mb-6">
+                                            {routine.exercises.length}{" "}
+                                            ejercicios
+                                        </p>
 
                                         <div className="flex flex-wrap gap-2 mb-8">
-                                            {routine.exercises.slice(0, 3).map((ex, i) => (
-                                                <div key={i} className="w-8 h-8 rounded-full bg-neutral-100 overflow-hidden border-2 border-white ring-1 ring-neutral-100" title={ex.name}>
-                                                    {ex.imageUrl ? (
-                                                        <img src={ex.imageUrl} alt={ex.name} className="w-full h-full object-cover mix-blend-multiply" />
-                                                    ) : (
-                                                        <Dumbbell size={16} className="m-auto mt-1 opacity-50" />
-                                                    )}
-                                                </div>
-                                            ))}
+                                            {routine.exercises
+                                                .slice(0, 3)
+                                                .map((ex, i) => (
+                                                    <div
+                                                        key={i}
+                                                        className="w-8 h-8 rounded-full bg-neutral-100 overflow-hidden border-2 border-white ring-1 ring-neutral-100"
+                                                        title={ex.name}
+                                                    >
+                                                        {ex.imageUrl ? (
+                                                            <img
+                                                                src={
+                                                                    ex.imageUrl
+                                                                }
+                                                                alt={ex.name}
+                                                                className="w-full h-full object-cover mix-blend-multiply"
+                                                            />
+                                                        ) : (
+                                                            <Dumbbell
+                                                                size={16}
+                                                                className="m-auto mt-1 opacity-50"
+                                                            />
+                                                        )}
+                                                    </div>
+                                                ))}
                                             {routine.exercises.length > 3 && (
                                                 <div className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-[10px] font-black border-2 border-white ring-1 ring-neutral-100">
-                                                    +{routine.exercises.length - 3}
+                                                    +
+                                                    {routine.exercises.length -
+                                                        3}
                                                 </div>
                                             )}
                                         </div>
@@ -291,9 +434,17 @@ const Routines = () => {
                             ))
                         ) : (
                             <div className="col-span-full bg-neutral-50 py-20 rounded-[3rem] text-center border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center">
-                                <Dumbbell size={48} className="text-neutral-300 mb-4" />
-                                <h3 className="text-xl font-bold text-neutral-900 mb-2">Aún no tienes rutinas</h3>
-                                <p className="text-sm text-neutral-400 font-medium mb-8 max-w-sm mx-auto">Agrega ejercicios desde el catálogo para construir tu primer plan de entrenamiento.</p>
+                                <Dumbbell
+                                    size={48}
+                                    className="text-neutral-300 mb-4"
+                                />
+                                <h3 className="text-xl font-bold text-neutral-900 mb-2">
+                                    Aún no tienes rutinas
+                                </h3>
+                                <p className="text-sm text-neutral-400 font-medium mb-8 max-w-sm mx-auto">
+                                    Agrega ejercicios desde el catálogo para
+                                    construir tu primer plan de entrenamiento.
+                                </p>
                                 <Link
                                     to="/catalog"
                                     className="px-8 py-4 bg-neutral-900 text-white rounded-full text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-neutral-200"
@@ -309,28 +460,48 @@ const Routines = () => {
             {/* Modal de Edición de Ejercicio */}
             {showCustomForm && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
-                    <div className="absolute inset-0 bg-neutral-900/80 backdrop-blur-sm" onClick={closeCustomForm} />
+                    <div
+                        className="absolute inset-0 bg-neutral-900/80 backdrop-blur-sm"
+                        onClick={closeCustomForm}
+                    />
                     <div className="bg-white w-full max-w-lg rounded-[2.5rem] p-10 relative z-10 shadow-2xl animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto">
                         <h3 className="text-3xl font-black text-neutral-900 uppercase tracking-tighter mb-8">
                             Editar Ejercicio
                         </h3>
-                        <form onSubmit={handleCreateCustom} className="space-y-6">
+                        <form
+                            onSubmit={handleCreateCustom}
+                            className="space-y-6"
+                        >
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Nombre del Ejercicio</label>
-                                <input 
+                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                                    Nombre del Ejercicio
+                                </label>
+                                <input
                                     required
-                                    type="text" 
+                                    type="text"
                                     value={customForm.name}
-                                    onChange={e => setCustomForm(prev => ({ ...prev, name: e.target.value }))}
+                                    onChange={(e) =>
+                                        setCustomForm((prev) => ({
+                                            ...prev,
+                                            name: e.target.value,
+                                        }))
+                                    }
                                     className="w-full bg-neutral-50 border-2 border-neutral-100 rounded-2xl px-6 py-4 focus:border-neutral-900 outline-none transition-all font-bold"
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Descripción</label>
-                                <textarea 
+                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                                    Descripción
+                                </label>
+                                <textarea
                                     value={customForm.description}
-                                    onChange={e => setCustomForm(prev => ({ ...prev, description: e.target.value }))}
+                                    onChange={(e) =>
+                                        setCustomForm((prev) => ({
+                                            ...prev,
+                                            description: e.target.value,
+                                        }))
+                                    }
                                     rows={3}
                                     className="w-full bg-neutral-50 border-2 border-neutral-100 rounded-2xl px-6 py-4 focus:border-neutral-900 outline-none transition-all font-bold text-sm resize-none"
                                     placeholder="Ej. Mantén el cuerpo recto, apoya los antebrazos..."
@@ -339,20 +510,34 @@ const Routines = () => {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Músculo</label>
-                                    <input 
-                                        type="text" 
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                                        Músculo
+                                    </label>
+                                    <input
+                                        type="text"
                                         value={customForm.target}
-                                        onChange={e => setCustomForm(prev => ({ ...prev, target: e.target.value }))}
+                                        onChange={(e) =>
+                                            setCustomForm((prev) => ({
+                                                ...prev,
+                                                target: e.target.value,
+                                            }))
+                                        }
                                         className="w-full bg-neutral-50 border-2 border-neutral-100 rounded-2xl px-6 py-4 focus:border-neutral-900 outline-none transition-all font-bold text-sm"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Equipo</label>
-                                    <input 
-                                        type="text" 
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                                        Equipo
+                                    </label>
+                                    <input
+                                        type="text"
                                         value={customForm.equipment}
-                                        onChange={e => setCustomForm(prev => ({ ...prev, equipment: e.target.value }))}
+                                        onChange={(e) =>
+                                            setCustomForm((prev) => ({
+                                                ...prev,
+                                                equipment: e.target.value,
+                                            }))
+                                        }
                                         className="w-full bg-neutral-50 border-2 border-neutral-100 rounded-2xl px-6 py-4 focus:border-neutral-900 outline-none transition-all font-bold text-sm"
                                     />
                                 </div>
@@ -360,29 +545,57 @@ const Routines = () => {
 
                             <div className="bg-neutral-50 p-4 rounded-2xl border-2 border-neutral-100 flex flex-col gap-4">
                                 <label className="flex items-center gap-3 cursor-pointer group">
-                                    <div className={clsx(
-                                        "w-6 h-6 rounded-md flex items-center justify-center transition-all border-2",
-                                        customForm.hasTimer ? "bg-blue-500 border-blue-500 text-white" : "bg-white border-neutral-300 group-hover:border-blue-500"
-                                    )}>
-                                        {customForm.hasTimer && <CheckCircle2 size={16} />}
+                                    <div
+                                        className={clsx(
+                                            "w-6 h-6 rounded-md flex items-center justify-center transition-all border-2",
+                                            customForm.hasTimer
+                                                ? "bg-blue-500 border-blue-500 text-white"
+                                                : "bg-white border-neutral-300 group-hover:border-blue-500",
+                                        )}
+                                    >
+                                        {customForm.hasTimer && (
+                                            <CheckCircle2 size={16} />
+                                        )}
                                     </div>
-                                    <input 
-                                        type="checkbox" 
-                                        className="hidden" 
-                                        checked={customForm.hasTimer} 
-                                        onChange={e => setCustomForm(prev => ({ ...prev, hasTimer: e.target.checked }))} 
+                                    <input
+                                        type="checkbox"
+                                        className="hidden"
+                                        checked={customForm.hasTimer}
+                                        onChange={(e) =>
+                                            setCustomForm((prev) => ({
+                                                ...prev,
+                                                hasTimer: e.target.checked,
+                                            }))
+                                        }
                                     />
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-neutral-600">Es un ejercicio por tiempo</span>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-neutral-600">
+                                        Es un ejercicio por tiempo
+                                    </span>
                                 </label>
-                                
+
                                 {customForm.hasTimer && (
                                     <div className="space-y-2 animate-in slide-in-from-top-2 fade-in duration-300 pl-9">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Duración por Serie (Segundos)</label>
-                                        <input 
-                                            type="number" 
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                                            Duración por Serie (Segundos)
+                                        </label>
+                                        <input
+                                            type="number"
                                             min="5"
-                                            value={customForm.timerDuration ?? ''}
-                                            onChange={e => setCustomForm(prev => ({ ...prev, timerDuration: e.target.value === '' ? '' : Number(e.target.value) }))}
+                                            value={
+                                                customForm.timerDuration ?? ""
+                                            }
+                                            onChange={(e) =>
+                                                setCustomForm((prev) => ({
+                                                    ...prev,
+                                                    timerDuration:
+                                                        e.target.value === ""
+                                                            ? ""
+                                                            : Number(
+                                                                  e.target
+                                                                      .value,
+                                                              ),
+                                                }))
+                                            }
                                             className="w-full bg-white border-2 border-neutral-200 rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition-all font-bold text-sm text-blue-600"
                                         />
                                     </div>
@@ -394,37 +607,84 @@ const Routines = () => {
                                     Banner (Imagen) y Video (Opcionales)
                                 </label>
                                 <div className="flex gap-4">
-                                    <label className={clsx(
-                                        "flex-1 cursor-pointer bg-neutral-50 border-2 border-dashed border-neutral-200 rounded-2xl p-4 flex flex-col items-center justify-center hover:border-neutral-900 transition-all group",
-                                        uploadingBanner && "opacity-50 pointer-events-none"
-                                    )}>
-                                        {uploadingBanner ? <Loader2 className="text-blue-500 mb-1 animate-spin" /> : <Plus className="text-neutral-300 group-hover:text-neutral-900 mb-1" />}
-                                        <span className="text-[8px] font-black uppercase tracking-widest text-neutral-400 text-center">{uploadingBanner ? "Subiendo..." : "Subir Banner"}</span>
-                                        <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                                    <label
+                                        className={clsx(
+                                            "flex-1 cursor-pointer bg-neutral-50 border-2 border-dashed border-neutral-200 rounded-2xl p-4 flex flex-col items-center justify-center hover:border-neutral-900 transition-all group",
+                                            uploadingBanner &&
+                                                "opacity-50 pointer-events-none",
+                                        )}
+                                    >
+                                        {uploadingBanner ? (
+                                            <Loader2 className="text-blue-500 mb-1 animate-spin" />
+                                        ) : (
+                                            <Plus className="text-neutral-300 group-hover:text-neutral-900 mb-1" />
+                                        )}
+                                        <span className="text-[8px] font-black uppercase tracking-widest text-neutral-400 text-center">
+                                            {uploadingBanner
+                                                ? "Subiendo..."
+                                                : "Subir Banner"}
+                                        </span>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={handleImageUpload}
+                                        />
                                     </label>
-                                    <label className={clsx(
-                                        "flex-1 cursor-pointer bg-neutral-50 border-2 border-dashed border-neutral-200 rounded-2xl p-4 flex flex-col items-center justify-center hover:border-neutral-900 transition-all group",
-                                        uploadingVideo && "opacity-50 pointer-events-none"
-                                    )}>
-                                        {uploadingVideo ? <Loader2 className="text-blue-500 mb-1 animate-spin" /> : <Video size={20} className="text-neutral-300 group-hover:text-neutral-900 mb-1" />}
-                                        <span className="text-[8px] font-black uppercase tracking-widest text-neutral-400 text-center">{uploadingVideo ? "Subiendo..." : "Subir Video"}</span>
-                                        <input type="file" accept="video/*" className="hidden" onChange={handleVideoUpload} />
+                                    <label
+                                        className={clsx(
+                                            "flex-1 cursor-pointer bg-neutral-50 border-2 border-dashed border-neutral-200 rounded-2xl p-4 flex flex-col items-center justify-center hover:border-neutral-900 transition-all group",
+                                            uploadingVideo &&
+                                                "opacity-50 pointer-events-none",
+                                        )}
+                                    >
+                                        {uploadingVideo ? (
+                                            <Loader2 className="text-blue-500 mb-1 animate-spin" />
+                                        ) : (
+                                            <Video
+                                                size={20}
+                                                className="text-neutral-300 group-hover:text-neutral-900 mb-1"
+                                            />
+                                        )}
+                                        <span className="text-[8px] font-black uppercase tracking-widest text-neutral-400 text-center">
+                                            {uploadingVideo
+                                                ? "Subiendo..."
+                                                : "Subir Video"}
+                                        </span>
+                                        <input
+                                            type="file"
+                                            accept="video/*"
+                                            className="hidden"
+                                            onChange={handleVideoUpload}
+                                        />
                                     </label>
                                 </div>
                                 {customForm.imageUrl && (
                                     <div className="mt-4 h-20 rounded-xl overflow-hidden border-2 border-neutral-100">
-                                        <img src={customForm.imageUrl} className="w-full h-full object-cover" alt="Preview" />
+                                        <img
+                                            src={customForm.imageUrl}
+                                            className="w-full h-full object-cover"
+                                            alt="Preview"
+                                        />
                                     </div>
                                 )}
                                 {customForm.videoUrl && (
                                     <div className="mt-4 flex items-center gap-2 px-1">
-                                        <CheckCircle2 size={12} className="text-green-500" />
+                                        <CheckCircle2
+                                            size={12}
+                                            className="text-green-500"
+                                        />
                                         <span className="text-[8px] font-black uppercase tracking-tighter text-green-600">
                                             Video Subido a la nube
                                         </span>
                                         <button
                                             type="button"
-                                            onClick={() => setCustomForm(prev => ({ ...prev, videoUrl: '' }))}
+                                            onClick={() =>
+                                                setCustomForm((prev) => ({
+                                                    ...prev,
+                                                    videoUrl: "",
+                                                }))
+                                            }
                                             className="text-[8px] font-black uppercase text-red-400 hover:text-red-600 ml-auto"
                                         >
                                             Eliminar
@@ -432,11 +692,18 @@ const Routines = () => {
                                     </div>
                                 )}
                                 <div className="mt-4 space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">URL del Video (YouTube, MP4, etc)</label>
-                                    <input 
-                                        type="text" 
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                                        URL del Video (YouTube, MP4, etc)
+                                    </label>
+                                    <input
+                                        type="text"
                                         value={customForm.videoUrl}
-                                        onChange={e => setCustomForm(prev => ({ ...prev, videoUrl: e.target.value }))}
+                                        onChange={(e) =>
+                                            setCustomForm((prev) => ({
+                                                ...prev,
+                                                videoUrl: e.target.value,
+                                            }))
+                                        }
                                         className="w-full bg-neutral-50 border-2 border-neutral-100 rounded-2xl px-6 py-4 focus:border-neutral-900 outline-none transition-all font-bold text-sm"
                                         placeholder="https://www.youtube.com/watch?v=..."
                                     />
@@ -444,14 +711,14 @@ const Routines = () => {
                             </div>
 
                             <div className="flex gap-4 pt-4">
-                                <button 
+                                <button
                                     type="button"
                                     onClick={closeCustomForm}
                                     className="flex-1 py-4 bg-neutral-100 text-neutral-500 font-black rounded-2xl uppercase tracking-widest text-[10px]"
                                 >
                                     Cancelar
                                 </button>
-                                <button 
+                                <button
                                     type="submit"
                                     className="flex-[2] py-4 bg-neutral-900 text-white font-black rounded-2xl uppercase tracking-widest text-[10px] shadow-xl shadow-neutral-200 hover:bg-black transition-all"
                                 >
@@ -466,10 +733,12 @@ const Routines = () => {
             {/* Modal de Detalles del Ejercicio */}
             {selectedExercise && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-8 animate-in fade-in duration-300">
-                    <div className="absolute inset-0 bg-neutral-900/80 backdrop-blur-sm" onClick={() => setSelectedExercise(null)} />
+                    <div
+                        className="absolute inset-0 bg-neutral-900/80 backdrop-blur-sm"
+                        onClick={() => setSelectedExercise(null)}
+                    />
                     <div className="bg-white w-full max-w-4xl h-full md:h-auto md:max-h-[90vh] md:rounded-[2rem] overflow-y-auto shadow-2xl relative z-10 flex flex-col md:flex-row">
-                        
-                        <button 
+                        <button
                             onClick={() => setSelectedExercise(null)}
                             className="absolute top-4 right-4 p-2 bg-neutral-100 hover:bg-neutral-200 rounded-full z-20 transition-colors text-neutral-600"
                         >
@@ -486,13 +755,15 @@ const Routines = () => {
                                     playsInline
                                     muted
                                     className="w-full h-full object-cover"
-                                    poster={selectedExercise.imageUrl || undefined}
+                                    poster={
+                                        selectedExercise.imageUrl || undefined
+                                    }
                                 />
                             ) : selectedExercise.imageUrl ? (
-                                <img 
-                                    src={selectedExercise.imageUrl} 
-                                    className="w-full h-full object-cover mix-blend-multiply" 
-                                    alt={selectedExercise.name} 
+                                <img
+                                    src={selectedExercise.imageUrl}
+                                    className="w-full h-full object-cover mix-blend-multiply"
+                                    alt={selectedExercise.name}
                                 />
                             ) : (
                                 <div className="w-full h-full min-h-[300px] flex items-center justify-center text-neutral-300">
@@ -500,53 +771,82 @@ const Routines = () => {
                                 </div>
                             )}
                         </div>
-                        
+
                         {/* Info Lateral */}
                         <div className="p-8 md:p-12 md:w-1/2 flex flex-col">
                             <h3 className="text-4xl font-black text-neutral-900 capitalize tracking-tighter mb-2 leading-tight">
                                 {selectedExercise.name}
                             </h3>
                             {selectedExercise.description && (
-                                <p className="text-2xl text-neutral-900 leading-relaxed mb-6">{selectedExercise.description}</p>
+                                <p className="text-2xl text-neutral-900 leading-relaxed mb-6">
+                                    {selectedExercise.description}
+                                </p>
                             )}
-                            
+
                             <div className="flex flex-wrap gap-3 mb-8">
                                 <div className="bg-neutral-100 px-4 py-2 rounded-xl flex items-center gap-2">
-                                    <Dumbbell className="text-neutral-500" size={16} />
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-600">{selectedExercise.equipment}</span>
+                                    <Dumbbell
+                                        className="text-neutral-500"
+                                        size={16}
+                                    />
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-600">
+                                        {selectedExercise.equipment}
+                                    </span>
                                 </div>
                                 <div className="bg-neutral-100 px-4 py-2 rounded-xl flex items-center gap-2">
-                                    <Trophy className="text-neutral-500" size={16} />
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-600">{selectedExercise.bodyPart} ({selectedExercise.target})</span>
+                                    <Trophy
+                                        className="text-neutral-500"
+                                        size={16}
+                                    />
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-600">
+                                        {selectedExercise.bodyPart} (
+                                        {selectedExercise.target})
+                                    </span>
                                 </div>
                             </div>
 
-                            {selectedExercise.instructions && selectedExercise.instructions.length > 0 ? (
+                            {selectedExercise.instructions &&
+                            selectedExercise.instructions.length > 0 ? (
                                 <div className="space-y-4 mb-8 flex-1">
-                                    <h4 className="text-xs font-black uppercase tracking-widest text-neutral-400">Instrucciones</h4>
+                                    <h4 className="text-xs font-black uppercase tracking-widest text-neutral-400">
+                                        Instrucciones
+                                    </h4>
                                     <ul className="space-y-3">
-                                        {selectedExercise.instructions.map((step, idx) => (
-                                            <li key={idx} className="text-sm text-neutral-600 flex gap-3">
-                                                <span className="font-bold text-neutral-900">{idx + 1}.</span>
-                                                <span>{step}</span>
-                                            </li>
-                                        ))}
+                                        {selectedExercise.instructions.map(
+                                            (step, idx) => (
+                                                <li
+                                                    key={idx}
+                                                    className="text-sm text-neutral-600 flex gap-3"
+                                                >
+                                                    <span className="font-bold text-neutral-900">
+                                                        {idx + 1}.
+                                                    </span>
+                                                    <span>{step}</span>
+                                                </li>
+                                            ),
+                                        )}
                                     </ul>
                                 </div>
                             ) : (
                                 <div className="flex-1 flex items-center justify-center py-8">
-                                    <p className="text-neutral-400 text-sm italic">No hay instrucciones detalladas para este ejercicio.</p>
+                                    <p className="text-neutral-400 text-sm italic">
+                                        No hay instrucciones detalladas para
+                                        este ejercicio.
+                                    </p>
                                 </div>
                             )}
 
                             <div className="pt-6 border-t border-neutral-100 mt-auto space-y-3">
-                                <button 
-                                    onClick={() => { openEditForm(selectedExercise); setSelectedExercise(null); }}
+                                <button
+                                    onClick={() => {
+                                        openEditForm(selectedExercise);
+                                        setSelectedExercise(null);
+                                    }}
                                     className="w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl active:scale-95 bg-neutral-100 text-neutral-600 hover:bg-neutral-200 flex items-center justify-center gap-2"
                                 >
                                     <Edit2 size={14} /> Editar Ejercicio
                                 </button>
-                                <button 
+                                <button
                                     onClick={() => setSelectedExercise(null)}
                                     className="w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl active:scale-95 bg-neutral-900 text-white shadow-neutral-300 hover:bg-black"
                                 >
@@ -574,212 +874,243 @@ const Routines = () => {
 export default Routines;
 
 const SortableExerciseItem = ({
-  exercise,
-  exIdx,
-  selectedExercises,
-  setSelectedExercise,
-  toggleSelection,
-  updateExerciseConfig,
+    exercise,
+    exIdx,
+    selectedExercises,
+    setSelectedExercise,
+    toggleSelection,
+    updateExerciseConfig,
 }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: exercise.id });
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: exercise.id });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-    zIndex: isDragging ? 50 : 1,
-  };
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+        zIndex: isDragging ? 50 : 1,
+    };
 
-  const nextExercise = selectedExercises[exIdx + 1];
-  const nextName = nextExercise ? nextExercise.name : 'el final de la rutina';
+    const nextExercise = selectedExercises
+        .slice(exIdx + 1)
+        .find((candidate) => !isAlternated(candidate));
+    const nextName = nextExercise ? nextExercise.name : "el final de la rutina";
 
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      onClick={() => setSelectedExercise(exercise)}
-      className="group bg-neutral-50 border border-neutral-100 rounded-xl p-4 flex flex-col gap-4 relative cursor-pointer hover:border-neutral-300 transition-colors"
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="absolute top-2 right-2 flex items-center gap-1 z-10"
-      >
-        <button
-          {...attributes}
-          {...listeners}
-          onClick={(e) => e.stopPropagation()}
-          className="p-1.5 text-neutral-400 hover:text-neutral-700 hover:bg-white rounded-full transition-colors cursor-grab active:cursor-grabbing"
-          title="Arrastrar para reordenar"
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            onClick={() => setSelectedExercise(exercise)}
+            className="group bg-neutral-50 border border-neutral-100 rounded-xl p-4 flex flex-col gap-4 relative cursor-pointer hover:border-neutral-300 transition-colors"
         >
-          <GripVertical size={14} />
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleSelection(exercise);
-          }}
-          className="p-1.5 text-neutral-300 hover:text-red-500 hover:bg-white rounded-full transition-colors"
-          title="Eliminar de la rutina"
-        >
-          <Trash2 size={14} />
-        </button>
-      </div>
-
-      <div className="flex items-center gap-4 w-full pr-8">
-        {exercise.imageUrl && (
-          <img
-            src={exercise.imageUrl}
-            alt={exercise.name}
-            className="w-12 h-12 rounded-lg object-cover mix-blend-multiply flex-shrink-0"
-          />
-        )}
-        <div className="min-w-0">
-          <h4 className="font-bold text-neutral-800 capitalize">{exercise.name}</h4>
-          <p className="text-xs text-neutral-400 uppercase font-bold tracking-tighter">
-            {exercise.target}
-          </p>
-        </div>
-      </div>
-
-      <div onClick={(e) => e.stopPropagation()} className="flex flex-wrap gap-2 items-center w-full">
-        <div className="flex flex-col flex-1 min-w-[60px]">
-          <label className="text-[9px] font-black uppercase text-neutral-400 mb-1">Series</label>
-          <input
-            type="number"
-            min="1"
-            value={exercise.sets ?? ''}
-            onChange={(e) =>
-              updateExerciseConfig(
-                exercise.id,
-                'sets',
-                e.target.value === '' ? '' : Number(e.target.value)
-              )
-            }
-            className="w-full bg-white border border-neutral-200 rounded-lg p-2 text-center font-bold text-sm focus:border-neutral-900 outline-none transition-colors"
-          />
-        </div>
-        <div className="flex flex-col flex-1 min-w-[150px]">
-          <label className="text-[9px] font-black uppercase text-neutral-400 mb-1">
-            Secuencia
-          </label>
-          <div className="flex gap-1">
-            <button
-              onClick={() => updateExerciseConfig(exercise.id, 'sequence', SEQUENCE_MODES.CONTINUOUS)}
-              title="Ejecuta todas las series seguidas y luego pasa al siguiente ejercicio"
-              className={clsx(
-                'flex-1 rounded-lg p-2 flex items-center justify-center transition-all border text-[9px] font-black uppercase tracking-tight',
-                !isAlternated(exercise)
-                  ? 'bg-neutral-900 text-white border-neutral-900'
-                  : 'bg-white text-neutral-400 border-neutral-200 hover:text-neutral-700'
-              )}
+            <div
+                onClick={(e) => e.stopPropagation()}
+                className="absolute top-2 right-2 flex items-center gap-1 z-10"
             >
-              Continuo
-            </button>
-            <button
-              onClick={() => updateExerciseConfig(exercise.id, 'sequence', SEQUENCE_MODES.ALTERNATED)}
-              title="Ejecuta 1 sola serie y luego pasa al siguiente ejercicio"
-              className={clsx(
-                'flex-1 rounded-lg p-2 flex items-center justify-center transition-all border text-[9px] font-black uppercase tracking-tight',
-                isAlternated(exercise)
-                  ? 'bg-neutral-900 text-white border-neutral-900'
-                  : 'bg-white text-neutral-400 border-neutral-200 hover:text-neutral-700'
-              )}
+                <button
+                    {...attributes}
+                    {...listeners}
+                    onClick={(e) => e.stopPropagation()}
+                    className="p-1.5 text-neutral-400 hover:text-neutral-700 hover:bg-white rounded-full transition-colors cursor-grab active:cursor-grabbing"
+                    title="Arrastrar para reordenar"
+                >
+                    <GripVertical size={14} />
+                </button>
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        toggleSelection(exercise);
+                    }}
+                    className="p-1.5 text-neutral-300 hover:text-red-500 hover:bg-white rounded-full transition-colors"
+                    title="Eliminar de la rutina"
+                >
+                    <Trash2 size={14} />
+                </button>
+            </div>
+
+            <div className="flex items-center gap-4 w-full pr-8">
+                {exercise.imageUrl && (
+                    <img
+                        src={exercise.imageUrl}
+                        alt={exercise.name}
+                        className="w-12 h-12 rounded-lg object-cover mix-blend-multiply flex-shrink-0"
+                    />
+                )}
+                <div className="min-w-0">
+                    <h4 className="font-bold text-neutral-800 capitalize">
+                        {exercise.name}
+                    </h4>
+                    <p className="text-xs text-neutral-400 uppercase font-bold tracking-tighter">
+                        {exercise.target}
+                    </p>
+                </div>
+            </div>
+
+            <div
+                onClick={(e) => e.stopPropagation()}
+                className="flex flex-wrap gap-2 items-center w-full"
             >
-              Alternado
-            </button>
-          </div>
+                <div className="flex flex-col flex-1 min-w-[60px]">
+                    <label className="text-[9px] font-black uppercase text-neutral-400 mb-1">
+                        Series
+                    </label>
+                    <input
+                        type="number"
+                        min="1"
+                        value={exercise.sets ?? ""}
+                        onChange={(e) =>
+                            updateExerciseConfig(
+                                exercise.id,
+                                "sets",
+                                e.target.value === ""
+                                    ? ""
+                                    : Number(e.target.value),
+                            )
+                        }
+                        className="w-full bg-white border border-neutral-200 rounded-lg p-2 text-center font-bold text-sm focus:border-neutral-900 outline-none transition-colors"
+                    />
+                </div>
+                <div className="flex flex-col flex-1 min-w-[150px]">
+                    <label className="text-[9px] font-black uppercase text-neutral-400 mb-1">
+                        Secuencia
+                    </label>
+                    <div className="flex gap-1">
+                        <button
+                            onClick={() =>
+                                updateExerciseConfig(
+                                    exercise.id,
+                                    "sequence",
+                                    SEQUENCE_MODES.CONTINUOUS,
+                                )
+                            }
+                            title="Ejecuta todas las series seguidas y luego pasa al siguiente ejercicio"
+                            className={clsx(
+                                "flex-1 rounded-lg p-2 flex items-center justify-center transition-all border text-[9px] font-black uppercase tracking-tight",
+                                !isAlternated(exercise)
+                                    ? "bg-neutral-900 text-white border-neutral-900"
+                                    : "bg-white text-neutral-400 border-neutral-200 hover:text-neutral-700",
+                            )}
+                        >
+                            Continuo
+                        </button>
+                        <button
+                            onClick={() =>
+                                updateExerciseConfig(
+                                    exercise.id,
+                                    "sequence",
+                                    SEQUENCE_MODES.ALTERNATED,
+                                )
+                            }
+                            title="Alterna cada serie con los ejercicios alternados consecutivos; después continúa la rutina"
+                            className={clsx(
+                                "flex-1 rounded-lg p-2 flex items-center justify-center transition-all border text-[9px] font-black uppercase tracking-tight",
+                                isAlternated(exercise)
+                                    ? "bg-neutral-900 text-white border-neutral-900"
+                                    : "bg-white text-neutral-400 border-neutral-200 hover:text-neutral-700",
+                            )}
+                        >
+                            Alternado
+                        </button>
+                    </div>
+                </div>
+                {isAlternated(exercise) && (
+                    <div className="w-full flex flex-col mt-2">
+                        <span className="text-[9px] font-black uppercase text-neutral-400 text-center">
+                            Intercala sus series con ejercicios alternados
+                            consecutivos; después sigue con {nextName}
+                        </span>
+                    </div>
+                )}
+            </div>
         </div>
-        {isAlternated(exercise) && (
-          <div className="w-full flex flex-col mt-2">
-            <span className="text-[9px] font-black uppercase text-neutral-400 text-center">
-              Después de 1 serie → pasa a {nextName}
-            </span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+    );
 };
 
 const SortableExerciseList = ({
-  exercises,
-  setSelectedExercise,
-  toggleSelection,
-  updateExerciseConfig,
-  onReorder,
+    exercises,
+    setSelectedExercise,
+    toggleSelection,
+    updateExerciseConfig,
+    onReorder,
 }) => {
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    })
-  );
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8,
+            },
+        }),
+    );
 
-  const handleDragEnd = (event) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-      onReorder(active.id, over.id);
-    }
-  };
+    const handleDragEnd = (event) => {
+        const { active, over } = event;
+        if (over && active.id !== over.id) {
+            onReorder(active.id, over.id);
+        }
+    };
 
-  const [activeId, setActiveId] = useState(null);
-  const activeExercise = activeId ? exercises.find((e) => e.id === activeId) : null;
+    const [activeId, setActiveId] = useState(null);
+    const activeExercise = activeId
+        ? exercises.find((e) => e.id === activeId)
+        : null;
 
-  return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragStart={(e) => setActiveId(e.active.id)}
-      onDragEnd={(e) => {
-        setActiveId(null);
-        handleDragEnd(e);
-      }}
-      onDragCancel={() => setActiveId(null)}
-    >
-      <SortableContext items={exercises.map((e) => e.id)} strategy={verticalListSortingStrategy}>
-        <div className="space-y-4">
-          {exercises.map((ex, exIdx) => (
-            <SortableExerciseItem
-              key={ex.id}
-              exercise={ex}
-              exIdx={exIdx}
-              selectedExercises={exercises}
-              setSelectedExercise={setSelectedExercise}
-              toggleSelection={toggleSelection}
-              updateExerciseConfig={updateExerciseConfig}
-            />
-          ))}
-        </div>
-      </SortableContext>
-      <DragOverlay>
-        {activeExercise ? (
-          <div className="group bg-neutral-50 border border-neutral-900 rounded-xl p-4 flex flex-col gap-4 shadow-2xl">
-            <div className="flex items-center gap-4 w-full">
-              {activeExercise.imageUrl && (
-                <img
-                  src={activeExercise.imageUrl}
-                  alt={activeExercise.name}
-                  className="w-12 h-12 rounded-lg object-cover mix-blend-multiply flex-shrink-0"
-                />
-              )}
-              <div className="min-w-0">
-                <h4 className="font-bold text-neutral-800 capitalize">{activeExercise.name}</h4>
-                <p className="text-xs text-neutral-400 uppercase font-bold tracking-tighter">
-                  {activeExercise.target}
-                </p>
-              </div>
-            </div>
-          </div>
-        ) : null}
-      </DragOverlay>
-    </DndContext>
-  );
+    return (
+        <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={(e) => setActiveId(e.active.id)}
+            onDragEnd={(e) => {
+                setActiveId(null);
+                handleDragEnd(e);
+            }}
+            onDragCancel={() => setActiveId(null)}
+        >
+            <SortableContext
+                items={exercises.map((e) => e.id)}
+                strategy={verticalListSortingStrategy}
+            >
+                <div className="space-y-4">
+                    {exercises.map((ex, exIdx) => (
+                        <SortableExerciseItem
+                            key={ex.id}
+                            exercise={ex}
+                            exIdx={exIdx}
+                            selectedExercises={exercises}
+                            setSelectedExercise={setSelectedExercise}
+                            toggleSelection={toggleSelection}
+                            updateExerciseConfig={updateExerciseConfig}
+                        />
+                    ))}
+                </div>
+            </SortableContext>
+            <DragOverlay>
+                {activeExercise ? (
+                    <div className="group bg-neutral-50 border border-neutral-900 rounded-xl p-4 flex flex-col gap-4 shadow-2xl">
+                        <div className="flex items-center gap-4 w-full">
+                            {activeExercise.imageUrl && (
+                                <img
+                                    src={activeExercise.imageUrl}
+                                    alt={activeExercise.name}
+                                    className="w-12 h-12 rounded-lg object-cover mix-blend-multiply flex-shrink-0"
+                                />
+                            )}
+                            <div className="min-w-0">
+                                <h4 className="font-bold text-neutral-800 capitalize">
+                                    {activeExercise.name}
+                                </h4>
+                                <p className="text-xs text-neutral-400 uppercase font-bold tracking-tighter">
+                                    {activeExercise.target}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                ) : null}
+            </DragOverlay>
+        </DndContext>
+    );
 };
