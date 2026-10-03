@@ -134,21 +134,23 @@ describe("useRoutineStore", () => {
         useRoutineStore.getState().updateExerciseConfig("ex-1", "sets", 5);
         expect(useRoutineStore.getState().selectedExercises[0].sets).toBe(5);
     });
-    
-        it("updateExerciseConfig permite modificar el tiempo de descanso", () => {
-            useRoutineStore.getState().toggleSelection(exercise);
-            useRoutineStore.getState().updateExerciseConfig("ex-1", "rest", 90);
-            expect(useRoutineStore.getState().selectedExercises[0].rest).toBe(90);
-        });
 
-        it("updateExerciseConfig permite modificar repeticiones y peso", () => {
-            useRoutineStore.getState().toggleSelection(exercise);
-            useRoutineStore.getState().updateExerciseConfig("ex-1", "reps", 10);
-            useRoutineStore.getState().updateExerciseConfig("ex-1", "weight", 25.5);
+    it("updateExerciseConfig permite modificar el tiempo de descanso", () => {
+        useRoutineStore.getState().toggleSelection(exercise);
+        useRoutineStore.getState().updateExerciseConfig("ex-1", "rest", 90);
+        expect(useRoutineStore.getState().selectedExercises[0].rest).toBe(90);
+    });
 
-            expect(useRoutineStore.getState().selectedExercises[0].reps).toBe(10);
-            expect(useRoutineStore.getState().selectedExercises[0].weight).toBe(25.5);
-        });
+    it("updateExerciseConfig permite modificar repeticiones y peso", () => {
+        useRoutineStore.getState().toggleSelection(exercise);
+        useRoutineStore.getState().updateExerciseConfig("ex-1", "reps", 10);
+        useRoutineStore.getState().updateExerciseConfig("ex-1", "weight", 25.5);
+
+        expect(useRoutineStore.getState().selectedExercises[0].reps).toBe(10);
+        expect(useRoutineStore.getState().selectedExercises[0].weight).toBe(
+            25.5,
+        );
+    });
 
     it("updateExerciseConfig cambia la secuencia del ejercicio a alternado y de vuelta", () => {
         useRoutineStore.getState().toggleSelection(exercise);
@@ -192,6 +194,18 @@ describe("useRoutineStore", () => {
         expect(useRoutineStore.getState().selectedExercises[0].sequence).toBe(
             SEQUENCE_MODES.ALTERNATED,
         );
+    });
+
+    it("conserva la fecha de creación al editar una rutina", () => {
+        const createdAt = "2025-03-10T12:00:00.000Z";
+        useRoutineStore.setState({
+            routines: [{ id: "routine-old", name: "Anterior", exercises: [], createdAt }],
+        });
+        useRoutineStore.getState().loadRoutineForEditing("routine-old");
+
+        useRoutineStore.getState().addRoutine("Anterior actualizada");
+
+        expect(useRoutineStore.getState().routines[0].createdAt).toBe(createdAt);
     });
 
     it("updateRoutineExercises mantiene el N configurado y la secuencia de un alternado", () => {
@@ -328,14 +342,12 @@ describe("useUserStore", () => {
     });
 
     it("deleteHealthRecord elimina un registro del historial", () => {
-        useUserStore
-            .getState()
-            .setProfile({
-                name: "A",
-                weight: "70",
-                imc: 21,
-                imcStatus: "Normal",
-            });
+        useUserStore.getState().setProfile({
+            name: "A",
+            weight: "70",
+            imc: 21,
+            imcStatus: "Normal",
+        });
         const date = useUserStore.getState().healthHistory[0].date;
         useUserStore.getState().deleteHealthRecord(date);
         expect(useUserStore.getState().healthHistory).toHaveLength(0);

@@ -8,9 +8,11 @@ import {
 } from "../store/useStore";
 import { prepareUserData } from "../services/migrationService";
 import Login from "../pages/Login";
+import ThemeToggle from "./ThemeToggle";
 
 const SplashScreen = ({ message }) => (
-    <div className="min-h-[100dvh] bg-neutral-50 flex flex-col items-center justify-center gap-6 font-sans px-6 text-center">
+    <div className="relative min-h-[100dvh] bg-neutral-50 flex flex-col items-center justify-center gap-6 font-sans px-6 text-center">
+        <ThemeToggle className="fixed right-4 top-4 z-50" />
         <div className="w-12 h-12 border-4 border-neutral-200 border-t-neutral-900 rounded-full animate-spin" />
         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-400">
             {message || "Preparando tu espacio"}
@@ -114,7 +116,8 @@ const AuthGate = ({ children }) => {
     if (preparationError) {
         return (
             <div className="min-h-[100dvh] bg-neutral-50 flex items-center justify-center px-6 font-sans">
-                <div className="w-full max-w-md rounded-2xl border border-red-100 bg-white p-8 text-center shadow-xl">
+                <div className="relative w-full max-w-md rounded-2xl border border-red-100 bg-white p-8 text-center shadow-xl">
+                    <ThemeToggle className="absolute right-4 top-4" />
                     <h1 className="text-lg font-black text-neutral-900">
                         No pudimos recuperar tus datos
                     </h1>

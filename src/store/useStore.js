@@ -293,11 +293,16 @@ export const useRoutineStore = create(
 
             addRoutine: (name) =>
                 set((state) => {
+                    const existingRoutine = state.routines.find(
+                        (routine) => routine.id === state.editingRoutineId,
+                    );
                     const newRoutine = {
                         id: state.editingRoutineId || crypto.randomUUID(),
                         name,
                         exercises: state.selectedExercises,
-                        createdAt: new Date().toISOString(),
+                        createdAt:
+                            existingRoutine?.createdAt ||
+                            new Date().toISOString(),
                     };
                     return {
                         routines: state.editingRoutineId

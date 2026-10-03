@@ -7,6 +7,7 @@ import Routines from './pages/Routines';
 import Workout from './pages/Workout';
 import CountdownTimer from './components/CountdownTimer';
 import AuthGate from './components/AuthGate';
+import ThemeToggle from './components/ThemeToggle';
 import { useAuthStore } from './store/useAuthStore';
 import { LayoutDashboard, User, Dumbbell, Search, Activity, Timer, X, LogOut } from 'lucide-react';
 import clsx from 'clsx';
@@ -54,6 +55,7 @@ const Layout = ({ children }) => {
             >
               <Timer size={20} />
             </button>
+            <ThemeToggle />
             {navItems.map((item) => (
               <NavLink
                 key={item.path}
@@ -149,13 +151,16 @@ const Layout = ({ children }) => {
             </p>
           </div>
         </div>
-        <button
-          onClick={() => setShowLogoutModal(true)}
-          className="p-2.5 rounded-2xl text-neutral-400 hover:bg-red-50 hover:text-red-500 transition-all shrink-0"
-          title="Cerrar sesión"
-        >
-          <LogOut size={18} />
-        </button>
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+          <button
+            onClick={() => setShowLogoutModal(true)}
+            className="p-2.5 rounded-2xl text-neutral-400 hover:bg-red-50 hover:text-red-500 transition-all shrink-0"
+            title="Cerrar sesión"
+          >
+            <LogOut size={18} />
+          </button>
+        </div>
       </div>
 
       {/* Modal Cronómetro */}

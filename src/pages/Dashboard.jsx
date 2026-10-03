@@ -5,10 +5,12 @@ import { Link } from 'react-router-dom';
 import Modal from '../components/Modal';
 import CoachWidget from '../components/CoachWidget';
 import clsx from 'clsx';
+import { sortRoutinesNewestFirst } from '../services/routineSorting';
 
 const Dashboard = () => {
   const { profile } = useUserStore();
   const { routines } = useRoutineStore();
+  const sortedRoutines = sortRoutinesNewestFirst(routines);
   const { history, deleteSession, addSession } = useHistoryStore();
   
   const [modal, setModal] = useState({ isOpen: false, sessionId: null });
@@ -107,7 +109,7 @@ const Dashboard = () => {
                 className="w-full pl-10 pr-4 py-3 bg-neutral-50 border-2 border-neutral-100 rounded-2xl text-xs font-bold text-neutral-900 focus:outline-none focus:border-neutral-900 transition-colors appearance-none"
               >
                 <option value="">Seleccionar...</option>
-                {routines.map(r => (
+                {sortedRoutines.map(r => (
                   <option key={r.id} value={r.id}>{r.name}</option>
                 ))}
               </select>

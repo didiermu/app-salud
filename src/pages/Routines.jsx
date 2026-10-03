@@ -20,6 +20,7 @@ import { Link } from "react-router-dom";
 import Modal from "../components/Modal";
 import ExerciseLoadHistory from "../components/ExerciseLoadHistory";
 import { SEQUENCE_MODES, isAlternated } from "../services/routineSequence";
+import { sortRoutinesNewestFirst } from "../services/routineSorting";
 import clsx from "clsx";
 import {
     DndContext,
@@ -53,6 +54,7 @@ const Routines = () => {
         editCustomExercise,
     } = useRoutineStore();
     const { addExerciseSnapshot } = useHistoryStore();
+    const sortedRoutines = sortRoutinesNewestFirst(routines);
 
     const [routineName, setRoutineName] = useState("");
     const [selectedExercise, setSelectedExercise] = useState(null);
@@ -351,7 +353,7 @@ const Routines = () => {
                         )}
                     >
                         {routines.length > 0 ? (
-                            routines.map((routine) => (
+                            sortedRoutines.map((routine) => (
                                 <div
                                     key={routine.id}
                                     className="bg-white border-2 border-neutral-100 p-6 rounded-[2rem] flex flex-col hover:border-neutral-300 hover:shadow-2xl transition-all group relative"
