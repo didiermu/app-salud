@@ -4,7 +4,9 @@ import {
     completeNativeSignIn,
     describeAuthError,
     listenForNativeRedirect,
+    signInWithEmail,
     signInWithGoogle,
+    signUpWithEmail,
     signOut,
     subscribeToAuth,
 } from "../services/authService";
@@ -32,6 +34,30 @@ export const useAuthStore = create((set, get) => ({
             if (auth.currentUser) {
                 set({ user: auth.currentUser });
             }
+        } catch (error) {
+            set({ error: describeAuthError(error), initializing: false });
+            throw error;
+        }
+    },
+
+    loginWithEmail: async (email, password) => {
+        set({ error: null });
+        try {
+            const user = await signInWithEmail(email, password);
+            set({ user });
+            return user;
+        } catch (error) {
+            set({ error: describeAuthError(error), initializing: false });
+            throw error;
+        }
+    },
+
+    registerWithEmail: async (email, password, name) => {
+        set({ error: null });
+        try {
+            const user = await signUpWithEmail(email, password, name);
+            set({ user });
+            return user;
         } catch (error) {
             set({ error: describeAuthError(error), initializing: false });
             throw error;

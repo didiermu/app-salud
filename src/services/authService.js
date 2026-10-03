@@ -10,12 +10,15 @@ import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
 import { App as CapacitorApp } from '@capacitor/app';
 import {
+  createUserWithEmailAndPassword,
   GoogleAuthProvider,
   getRedirectResult,
   onAuthStateChanged,
+  signInWithEmailAndPassword,
   signInWithPopup,
   signInWithRedirect,
   signOut as firebaseSignOut,
+  updateProfile,
 } from 'firebase/auth';
 import { auth } from '../firebase';
 
@@ -39,12 +42,33 @@ export const describeAuthError = (error) => {
       'Esta cuenta ya existe con otro método de acceso.',
     'auth/too-many-requests': 'Demasiados intentos. Espera un momento.',
     'auth/operation-not-allowed':
-      'El proveedor de Google no está habilitado en la consola de Firebase.',
+      'Este método de acceso no está habilitado en Firebase. Actívalo en la consola de Firebase, en Authentication > Proveedores.',
     'auth/unauthorized-domain':
       'Este dominio no está autorizado en la consola de Firebase.',
+    'auth/email-already-in-use': 'Ya existe una cuenta con ese correo. Inicia sesión o usa otro correo.',
+    'auth/invalid-email': 'El correo electrónico no tiene un formato válido.',
+    'auth/weak-password': 'La contraseña debe tener al menos 6 caracteres.',
+    'auth/missing-password': 'Escribe tu contraseña para continuar.',
+    'auth/invalid-credential': 'El correo o la contraseña son incorrectos.',
+    'auth/user-not-found': 'El correo o la contraseña son incorrectos.',
+    'auth/wrong-password': 'El correo o la contraseña son incorrectos.',
+    'auth/user-disabled': 'Esta cuenta está deshabilitada. Contacta con soporte.',
   };
 
-  return known[code] || 'No pudimos iniciar sesión. Inténtalo de nuevo.';
+  return known[code] || 'No pudimos completar la solicitud. Inténtalo de nuevo.';
+};
+
+/** Crea una cuenta con correo y contraseña, y guarda el nombre visible. */
+export const signUpWithEmail = async (email, password, name) => {
+  const credential = await createUserWithEmailAndPassword(auth, email.trim(), password);
+  await updateProfile(credential.user, { displayName: name.trim() });
+  return credential.user;
+};
+
+/** Inicia sesión con una cuenta de correo y contraseña. */
+export const signInWithEmail = async (email, password) => {
+  const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
+  return credential.user;
 };
 
 /** Cierra la Custom Tab si el login nativo quedó abierto. */

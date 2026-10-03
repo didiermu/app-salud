@@ -85,7 +85,15 @@ describe('aislamiento por usuario', () => {
     resetStores();
     expect(typeof useRoutineStore.getState().addRoutine).toBe('function');
     expect(typeof useUserStore.getState().setProfile).toBe('function');
+    expect(typeof useUserStore.getState().setProfileName).toBe('function');
     expect(typeof useHistoryStore.getState().addSession).toBe('function');
+  });
+
+  it('guarda el nombre de autenticación sin añadir un registro de salud', () => {
+    useUserStore.getState().setProfileName('Ana');
+
+    expect(useUserStore.getState().profile.name).toBe('Ana');
+    expect(useUserStore.getState().healthHistory).toEqual([]);
   });
 });
 

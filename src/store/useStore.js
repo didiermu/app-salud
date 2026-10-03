@@ -149,6 +149,9 @@ export const useUserStore = create(
           healthHistory: [newRecord, ...state.healthHistory].slice(0, 20)
         };
       }),
+      setProfileName: (name) => set((state) => ({
+        profile: { ...state.profile, name: name || '' },
+      })),
       deleteHealthRecord: (date) => set((state) => ({
         healthHistory: state.healthHistory.filter(r => r.date !== date)
       })),

@@ -12,7 +12,9 @@ vi.mock("../firebase", () => ({
 }));
 
 vi.mock("../services/authService", () => ({
+    signInWithEmail: vi.fn(async () => DIDIER),
     signInWithGoogle: vi.fn(async () => ({ uid: "uid-web" })),
+    signUpWithEmail: vi.fn(async () => DIDIER),
     signOut: vi.fn(async () => {}),
     completeNativeSignIn: vi.fn(async () => null),
     listenForNativeRedirect: vi.fn(() => () => {}),
@@ -104,6 +106,22 @@ describe("useAuthStore", () => {
         await expect(useAuthStore.getState().login()).rejects.toThrow();
 
         expect(useAuthStore.getState().error).toBe("mensaje");
+    });
+
+    it("inicia sesión con correo y guarda el usuario", async () => {
+        await useAuthStore.getState().loginWithEmail("didier@example.com", "clave123");
+
+        expect(useAuthStore.getState().user).toEqual(DIDIER);
+        expect(useAuthStore.getState().error).toBeNull();
+    });
+
+    it("registra por correo con nombre y guarda el usuario", async () => {
+        const { signUpWithEmail } = await import("../services/authService");
+
+        await useAuthStore.getState().registerWithEmail("ana@example.com", "clave123", "Ana");
+
+        expect(signUpWithEmail).toHaveBeenCalledWith("ana@example.com", "clave123", "Ana");
+        expect(useAuthStore.getState().user).toEqual(DIDIER);
     });
 
     it("logout limpia el usuario y el error", async () => {

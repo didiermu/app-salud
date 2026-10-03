@@ -1,5 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 
+const firebaseAuthMocks = vi.hoisted(() => ({
+  createUserWithEmailAndPassword: vi.fn(),
+  signInWithEmailAndPassword: vi.fn(),
+  updateProfile: vi.fn(),
+}));
+
 vi.mock('@capacitor/core', () => ({
   Capacitor: { isNativePlatform: () => false },
 }));
@@ -14,7 +20,17 @@ vi.mock('@capacitor/app', () => ({
 
 vi.mock('../firebase', () => ({ db: undefined, auth: {} }));
 
-import { describeAuthError } from './authService';
+vi.mock('firebase/auth', () => ({
+  ...firebaseAuthMocks,
+  GoogleAuthProvider: class {},
+  getRedirectResult: vi.fn(),
+  onAuthStateChanged: vi.fn(),
+  signInWithPopup: vi.fn(),
+  signInWithRedirect: vi.fn(),
+  signOut: vi.fn(),
+}));
+
+import { describeAuthError, signInWithEmail, signUpWithEmail } from './authService';
 
 describe('describeAuthError', () => {
   it('traduce los errores conocidos de Firebase', () => {
@@ -40,10 +56,45 @@ describe('describeAuthError', () => {
 
   it('cae en un mensaje genérico ante errores desconocidos', () => {
     expect(describeAuthError({ code: 'auth/lo-que-sea' })).toBe(
-      'No pudimos iniciar sesión. Inténtalo de nuevo.'
+      'No pudimos completar la solicitud. Inténtalo de nuevo.'
     );
     expect(describeAuthError(undefined)).toBe(
-      'No pudimos iniciar sesión. Inténtalo de nuevo.'
+      'No pudimos completar la solicitud. Inténtalo de nuevo.'
+    );
+  });
+
+  it('traduce los errores habituales de registro e inicio con correo', () => {
+    expect(describeAuthError({ code: 'auth/email-already-in-use' })).toContain('Ya existe una cuenta');
+    expect(describeAuthError({ code: 'auth/weak-password' })).toContain('6 caracteres');
+    expect(describeAuthError({ code: 'auth/invalid-credential' })).toContain('incorrectos');
+  });
+});
+
+describe('autenticación por correo', () => {
+  it('crea la cuenta, normaliza el correo y asigna el nombre visible', async () => {
+    const user = { uid: 'uid-nuevo' };
+    firebaseAuthMocks.createUserWithEmailAndPassword.mockResolvedValueOnce({ user });
+
+    await expect(signUpWithEmail('  atleta@example.com ', 'clave123', ' Ana ')).resolves.toBe(user);
+
+    expect(firebaseAuthMocks.createUserWithEmailAndPassword).toHaveBeenCalledWith(
+      expect.anything(),
+      'atleta@example.com',
+      'clave123'
+    );
+    expect(firebaseAuthMocks.updateProfile).toHaveBeenCalledWith(user, { displayName: 'Ana' });
+  });
+
+  it('inicia sesión con correo y contraseña', async () => {
+    const user = { uid: 'uid-existente' };
+    firebaseAuthMocks.signInWithEmailAndPassword.mockResolvedValueOnce({ user });
+
+    await expect(signInWithEmail(' atleta@example.com ', 'clave123')).resolves.toBe(user);
+
+    expect(firebaseAuthMocks.signInWithEmailAndPassword).toHaveBeenCalledWith(
+      expect.anything(),
+      'atleta@example.com',
+      'clave123'
     );
   });
 });
