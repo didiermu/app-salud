@@ -84,6 +84,18 @@ const Workout = () => {
     const currentStep = currentSteps[currentStepIdx];
     const nextStep = currentSteps[currentStepIdx + 1];
 
+    const timelineSteps = useMemo(
+        () =>
+            currentSteps.filter(
+                (step) =>
+                    step.type !== "rest" &&
+                    !step.isRest &&
+                    !step.restStep &&
+                    step.name !== "Descanso",
+            ),
+        [currentSteps],
+    );
+
     // Auto-play video logic to ensure both data URLs and remote URLs play when mounted/changed
     useEffect(() => {
         if (videoRef.current) {
@@ -112,7 +124,7 @@ const Workout = () => {
                 });
             }
         }
-    }, [currentStepIdx]);
+    }, [currentStepIdx, isResting]);
 
     const updateCurrentStepData = (field, value) => {
         setCurrentSteps((prev) => {
@@ -388,21 +400,33 @@ const Workout = () => {
                     ref={timelineRef}
                     className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide"
                 >
-                    {currentSteps.map((step, idx) => {
-                        const isCompleted = idx < currentStepIdx;
-                        const isCurrent = idx === currentStepIdx;
+                    {timelineSteps.map((step, timelineIdx) => {
+                        // mejor buscar por clave y que no sea descanso
+                        const firstIndex = currentSteps.findIndex(
+                            (s, idx2) =>
+                                stepKey(s) === stepKey(step) &&
+                                s.type !== "rest" &&
+                                !s.isRest &&
+                                !s.restStep,
+                        );
+                        const isCompleted =
+                            firstIndex !== -1 && firstIndex < currentStepIdx;
+                        const isCurrent =
+                            firstIndex !== -1 && firstIndex === currentStepIdx && !isResting;
                         return (
                             <div
-                                key={`${step.id}-${idx}`}
+                                key={`${step.id}-${step.currentSet}-${timelineIdx}`}
                                 className="flex items-center gap-3 flex-shrink-0"
                             >
                                 <button
                                     title={`${step.name} - Serie ${step.currentSet}`}
                                     onClick={() => {
-                                        setCurrentStepIdx(idx);
-                                        setIsResting(false);
-                                        setIsExerciseTimer(false);
-                                        setIsActive(false);
+                                        if (firstIndex !== -1) {
+                                            setCurrentStepIdx(firstIndex);
+                                            setIsResting(false);
+                                            setIsExerciseTimer(false);
+                                            setIsActive(false);
+                                        }
                                     }}
                                     className={clsx(
                                         "flex flex-col items-center gap-1 group transition-all",
@@ -428,7 +452,7 @@ const Workout = () => {
                                             />
                                         ) : (
                                             <span className="text-[10px] font-bold">
-                                                {idx + 1}
+                                                {timelineIdx + 1}
                                             </span>
                                         )}
                                     </div>
@@ -443,11 +467,11 @@ const Workout = () => {
                                         S{step.currentSet}
                                     </span>
                                 </button>
-                                {idx < currentSteps.length - 1 && (
+                                {timelineIdx < timelineSteps.length - 1 && (
                                     <div
                                         className={clsx(
                                             "w-6 h-[1px] rounded-full mb-4",
-                                            idx < currentStepIdx
+                                            isCompleted
                                                 ? "bg-green-500"
                                                 : "bg-neutral-200",
                                         )}

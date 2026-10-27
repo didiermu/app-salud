@@ -13,8 +13,7 @@ import {
     GripVertical,
     Trophy,
     Upload,
-    Loader2,
-    Video,
+    Timer,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Modal from "../components/Modal";
@@ -208,9 +207,6 @@ const Routines = () => {
             });
         }
         addRoutine(routineName);
-        if (selectedExercises.length > 0) {
-            addExerciseSnapshot(selectedExercises, routineName);
-        }
         setRoutineName("");
         setModal({
             isOpen: true,
@@ -1095,6 +1091,64 @@ const SortableExerciseItem = ({
                         </span>
                     </div>
                 )}
+                <div className="w-full mt-3 p-3 bg-neutral-50 border border-neutral-200 rounded-xl">
+                    <label className="flex items-center justify-between gap-3 cursor-pointer">
+                        <div className="flex items-center gap-2">
+                            <Timer size={16} className="text-blue-600" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-neutral-600">
+                                Ejercicio por tiempo
+                            </span>
+                        </div>
+                        <div
+                            className={clsx(
+                                "w-5 h-5 rounded-md flex items-center justify-center transition-all border",
+                                exercise.hasTimer
+                                    ? "bg-blue-600 border-blue-600 text-white"
+                                    : "bg-white border-neutral-300",
+                            )}
+                        >
+                            {exercise.hasTimer && <CheckCircle2 size={12} />}
+                        </div>
+                        <input
+                            type="checkbox"
+                            className="hidden"
+                            checked={exercise.hasTimer || false}
+                            onChange={(e) =>
+                                updateExerciseConfig(
+                                    exercise.id,
+                                    "hasTimer",
+                                    e.target.checked,
+                                )
+                            }
+                        />
+                    </label>
+                    {exercise.hasTimer && (
+                        <div className="mt-2 flex items-center gap-2">
+                            <label className="text-[9px] font-black uppercase text-neutral-400">
+                                Duración (s)
+                            </label>
+                            <input
+                                type="number"
+                                min="5"
+                                step="5"
+                                value={exercise.timerDuration ?? 60}
+                                onChange={(e) =>
+                                    updateExerciseConfig(
+                                        exercise.id,
+                                        "timerDuration",
+                                        e.target.value === ""
+                                            ? ""
+                                            : Math.max(
+                                                  5,
+                                                  Number(e.target.value),
+                                              ),
+                                    )
+                                }
+                                className="w-20 bg-white border border-neutral-200 rounded-lg p-1.5 text-center font-bold text-sm focus:border-blue-600 outline-none transition-colors"
+                            />
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
