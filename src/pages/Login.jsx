@@ -87,7 +87,7 @@ const Login = () => {
                         <Activity size={36} />
                     </div>
                     <h1 className="text-4xl font-black text-neutral-900 tracking-tighter uppercase">
-                        Salud<span className="text-neutral-400">App</span>
+                        Salud<span className="text-neutral-600">App</span>
                     </h1>
                     <p className="text-neutral-500 font-medium text-sm leading-relaxed">
                         Tu entrenamiento, tus rutinas y tu progreso.
@@ -110,7 +110,7 @@ const Login = () => {
                             <label className="flex items-center gap-3 rounded-xl border border-neutral-200 px-4 focus-within:border-neutral-900">
                                 <UserRound
                                     size={17}
-                                    className="text-neutral-400"
+                                    className="text-neutral-600"
                                 />
                                 <input
                                     type="text"
@@ -128,7 +128,7 @@ const Login = () => {
                             </label>
                         )}
                         <label className="flex items-center gap-3 rounded-xl border border-neutral-200 px-4 focus-within:border-neutral-900">
-                            <Mail size={17} className="text-neutral-400" />
+                            <Mail size={17} className="text-neutral-600" />
                             <input
                                 type="email"
                                 autoComplete="email"
@@ -143,7 +143,7 @@ const Login = () => {
                             />
                         </label>
                         <div className="flex items-center gap-3 rounded-xl border border-neutral-200 px-4 focus-within:border-neutral-900">
-                            <Lock size={17} className="text-neutral-400" />
+                            <Lock size={17} className="text-neutral-600" />
                             <input
                                 type={showPassword ? "text" : "password"}
                                 autoComplete={
@@ -177,7 +177,7 @@ const Login = () => {
                                         ? "Ocultar contraseña"
                                         : "Mostrar contraseña"
                                 }
-                                className="flex-shrink-0 rounded-md p-1 text-neutral-400 transition-colors hover:text-neutral-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-neutral-900"
+                                className="flex-shrink-0 rounded-md p-1 text-neutral-600 transition-colors hover:text-neutral-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-neutral-900"
                             >
                                 {showPassword ? (
                                     <EyeOff size={18} />

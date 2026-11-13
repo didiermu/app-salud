@@ -14,7 +14,7 @@ const SplashScreen = ({ message }) => (
     <div className="relative min-h-[100dvh] bg-neutral-50 flex flex-col items-center justify-center gap-6 font-sans px-6 text-center">
         <ThemeToggle className="fixed right-4 top-4 z-50" />
         <div className="w-12 h-12 border-4 border-neutral-200 border-t-neutral-900 rounded-full animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-400">
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-600">
             {message || "Preparando tu espacio"}
         </p>
     </div>

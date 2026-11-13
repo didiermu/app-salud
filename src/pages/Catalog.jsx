@@ -195,7 +195,7 @@ const Catalog = () => {
       {selectedExercises.length > 0 && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 bg-neutral-900 text-white px-8 py-4 rounded-full shadow-2xl flex items-center gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700 backdrop-blur-xl bg-opacity-90 border border-white/10">
           <div className="flex flex-col">
-            <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Seleccionados</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-neutral-600">Seleccionados</span>
             <span className="text-sm font-bold">{selectedExercises.length} ejercicios</span>
           </div>
           <button 
@@ -211,7 +211,7 @@ const Catalog = () => {
         <div className="space-y-1">
           <h2 className="text-5xl font-black text-neutral-900 tracking-tighter uppercase leading-none">Catálogo</h2>
           <div className="flex items-center gap-4">
-            <p className="text-neutral-400 font-bold uppercase text-xs tracking-[0.3em]">{filteredExercises.length} ejercicios disponibles</p>
+            <p className="text-neutral-600 font-bold uppercase text-xs tracking-[0.3em]">{filteredExercises.length} ejercicios disponibles</p>
             <button 
               onClick={() => { setEditingCustomId(null); setShowCustomForm(true); }}
               className="bg-neutral-900 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg flex items-center gap-2"
@@ -246,7 +246,7 @@ const Catalog = () => {
           ))}
         </div>
       ) : error ? (
-        <div className="flex flex-col items-center justify-center py-20 text-neutral-400">
+        <div className="flex flex-col items-center justify-center py-20 text-neutral-600">
           <Info size={48} className="mb-4 opacity-50" />
           <p className="font-bold text-lg">No se pudo cargar el catálogo</p>
           <p className="text-sm mb-8">Revisa tu conexión a internet e intenta nuevamente.</p>
@@ -258,7 +258,7 @@ const Catalog = () => {
           </button>
         </div>
       ) : displayExercises.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-neutral-400">
+        <div className="flex flex-col items-center justify-center py-20 text-neutral-600">
           <Info size={48} className="mb-4 opacity-50" />
           <p className="font-bold text-lg">No se encontraron ejercicios</p>
           <p className="text-sm">Intenta con otra palabra clave</p>
@@ -314,13 +314,13 @@ const Catalog = () => {
                 <h4 className="text-xl font-bold text-neutral-900 mb-2 capitalize line-clamp-1">{ex.name}</h4>
                 <div className="flex items-center gap-2 mb-8">
                   <Dumbbell size={14} className="text-neutral-300" />
-                  <p className="text-[10px] font-black uppercase text-neutral-400 tracking-widest">{ex.equipment}</p>
+                  <p className="text-[10px] font-black uppercase text-neutral-600 tracking-widest">{ex.equipment}</p>
                 </div>
                 
                 <div className="mt-auto flex items-center justify-between gap-4">
                   <button 
                     onClick={() => setSelectedExercise(ex)}
-                    className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 hover:text-neutral-900 transition-all border-b-2 border-transparent hover:border-neutral-900 pb-1"
+                    className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-600 hover:text-neutral-900 transition-all border-b-2 border-transparent hover:border-neutral-900 pb-1"
                   >
                     Detalles
                   </button>
@@ -359,7 +359,7 @@ const Catalog = () => {
             </h3>
             <form onSubmit={handleCreateCustom} className="space-y-6">
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Nombre del Ejercicio</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-600">Nombre del Ejercicio</label>
                 <input 
                   required
                   type="text" 
@@ -371,7 +371,7 @@ const Catalog = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Descripción</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-600">Descripción</label>
                 <textarea 
                   value={customForm.description}
                   onChange={e => setCustomForm(prev => ({ ...prev, description: e.target.value }))}
@@ -383,7 +383,7 @@ const Catalog = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Músculo</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-neutral-600">Músculo</label>
                   <input 
                     type="text" 
                     value={customForm.target}
@@ -393,7 +393,7 @@ const Catalog = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Equipo</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-neutral-600">Equipo</label>
                   <input 
                     type="text" 
                     value={customForm.equipment}
@@ -423,7 +423,7 @@ const Catalog = () => {
                 
                 {customForm.hasTimer && (
                   <div className="space-y-2 animate-in slide-in-from-top-2 fade-in duration-300 pl-9">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Duración por Serie (Segundos)</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-neutral-600">Duración por Serie (Segundos)</label>
                     <input 
                       type="number" 
                       min="5"
@@ -436,7 +436,7 @@ const Catalog = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 text-center block">
+                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-600 text-center block">
                   Banner (Imagen) y Video (Opcionales)
                 </label>
                 <div className="flex gap-4">
@@ -445,7 +445,7 @@ const Catalog = () => {
                     uploadingBanner && "opacity-50 pointer-events-none"
                   )}>
                     {uploadingBanner ? <Loader2 className="text-blue-500 mb-1 animate-spin" /> : <Plus className="text-neutral-300 group-hover:text-neutral-900 mb-1" />}
-                    <span className="text-[8px] font-black uppercase tracking-widest text-neutral-400 text-center">{uploadingBanner ? "Subiendo..." : "Subir Banner"}</span>
+                    <span className="text-[8px] font-black uppercase tracking-widest text-neutral-600 text-center">{uploadingBanner ? "Subiendo..." : "Subir Banner"}</span>
                     <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
                   </label>
                   <label className={clsx(
@@ -453,7 +453,7 @@ const Catalog = () => {
                     uploadingVideo && "opacity-50 pointer-events-none"
                   )}>
                     {uploadingVideo ? <Loader2 className="text-blue-500 mb-1 animate-spin" /> : <Video size={20} className="text-neutral-300 group-hover:text-neutral-900 mb-1" />}
-                    <span className="text-[8px] font-black uppercase tracking-widest text-neutral-400 text-center">{uploadingVideo ? "Subiendo..." : "Subir Video"}</span>
+                    <span className="text-[8px] font-black uppercase tracking-widest text-neutral-600 text-center">{uploadingVideo ? "Subiendo..." : "Subir Video"}</span>
                     <input type="file" accept="video/*" className="hidden" onChange={handleVideoUpload} />
                   </label>
                 </div>
@@ -478,7 +478,7 @@ const Catalog = () => {
                   </div>
                 )}
                 <div className="mt-4 space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">URL del Video (YouTube, MP4, etc)</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-neutral-600">URL del Video (YouTube, MP4, etc)</label>
                   <input 
                     type="text" 
                     value={customForm.videoUrl}
@@ -569,7 +569,7 @@ const Catalog = () => {
 
               {selectedExercise.instructions && selectedExercise.instructions.length > 0 ? (
                 <div className="space-y-4 mb-8 flex-1">
-                  <h4 className="text-xs font-black uppercase tracking-widest text-neutral-400">Instrucciones</h4>
+                  <h4 className="text-xs font-black uppercase tracking-widest text-neutral-600">Instrucciones</h4>
                   <ul className="space-y-3">
                     {selectedExercise.instructions.map((step, idx) => (
                       <li key={idx} className="text-sm text-neutral-600 flex gap-3">
@@ -581,7 +581,7 @@ const Catalog = () => {
                 </div>
               ) : (
                 <div className="flex-1 flex items-center justify-center py-8">
-                   <p className="text-neutral-400 text-sm italic">No hay instrucciones detalladas para este ejercicio.</p>
+                   <p className="text-neutral-600 text-sm italic">No hay instrucciones detalladas para este ejercicio.</p>
                 </div>
               )}
 

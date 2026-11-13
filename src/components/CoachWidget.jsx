@@ -51,7 +51,7 @@ const CoachWidget = () => {
         </div>
         <div>
           <h3 className="text-white font-black text-sm uppercase tracking-widest">Tu Coach IA</h3>
-          <p className="text-neutral-400 text-[10px] font-bold uppercase tracking-widest">Análisis personalizado</p>
+          <p className="text-neutral-600 text-[10px] font-bold uppercase tracking-widest">Análisis personalizado</p>
         </div>
       </div>
 
@@ -59,16 +59,16 @@ const CoachWidget = () => {
         <div className="px-5 py-4 border-b border-neutral-100 bg-neutral-50/50">
           <div className="grid grid-cols-2 gap-3">
             <div className="flex items-center gap-2">
-              <Dumbbell size={12} className="text-neutral-400" />
+              <Dumbbell size={12} className="text-neutral-600" />
               <div>
-                <p className="text-[8px] font-black uppercase tracking-widest text-neutral-400">Último</p>
+                <p className="text-[8px] font-black uppercase tracking-widest text-neutral-600">Último</p>
                 <p className="text-xs font-black text-neutral-900 truncate">{summary.lastWorkout || 'Sin datos'}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <BarChart3 size={12} className="text-neutral-400" />
+              <BarChart3 size={12} className="text-neutral-600" />
               <div>
-                <p className="text-[8px] font-black uppercase tracking-widest text-neutral-400">Frecuencia</p>
+                <p className="text-[8px] font-black uppercase tracking-widest text-neutral-600">Frecuencia</p>
                 <p className="text-xs font-black text-neutral-900">{summary.frequency || 0} x/sem</p>
               </div>
             </div>
@@ -77,14 +77,14 @@ const CoachWidget = () => {
                 <div className="flex items-center gap-2">
                   <Zap size={12} className="text-blue-500" />
                   <div>
-                    <p className="text-[8px] font-black uppercase tracking-widest text-neutral-400">Ejercicios</p>
+                    <p className="text-[8px] font-black uppercase tracking-widest text-neutral-600">Ejercicios</p>
                     <p className="text-xs font-black text-neutral-900">{summary.exercisesTracked} seguimiento</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <TrendingUp size={12} className="text-green-500" />
                   <div>
-                    <p className="text-[8px] font-black uppercase tracking-widest text-neutral-400">Progresiones</p>
+                    <p className="text-[8px] font-black uppercase tracking-widest text-neutral-600">Progresiones</p>
                     <p className="text-xs font-black text-neutral-900">{summary.progressionsCount} subidas</p>
                   </div>
                 </div>
@@ -92,9 +92,9 @@ const CoachWidget = () => {
             )}
             {summary.bodyWeight > 0 && (
               <div className="flex items-center gap-2">
-                <Scale size={12} className="text-neutral-400" />
+                <Scale size={12} className="text-neutral-600" />
                 <div>
-                  <p className="text-[8px] font-black uppercase tracking-widest text-neutral-400">Peso</p>
+                  <p className="text-[8px] font-black uppercase tracking-widest text-neutral-600">Peso</p>
                   <p className="text-xs font-black text-neutral-900">
                     {summary.bodyWeight} kg
                     {summary.bodyWeightChange && (
@@ -113,7 +113,7 @@ const CoachWidget = () => {
               <div className="flex items-center gap-2">
                 <BarChart3 size={12} className="text-blue-500" />
                 <div>
-                  <p className="text-[8px] font-black uppercase tracking-widest text-neutral-400">Volumen Total</p>
+                  <p className="text-[8px] font-black uppercase tracking-widest text-neutral-600">Volumen Total</p>
                   <p className="text-xs font-black text-neutral-900">{(summary.totalVolume / 1000).toFixed(1)}k kg</p>
                 </div>
               </div>
@@ -126,7 +126,7 @@ const CoachWidget = () => {
         {suggestions.length === 0 ? (
           <div className="p-4 rounded-2xl border-2 border-neutral-200 bg-neutral-50/50">
             <div className="flex items-start gap-3">
-              <div className="mt-0.5 shrink-0"><Brain size={16} className="text-neutral-400" /></div>
+              <div className="mt-0.5 shrink-0"><Brain size={16} className="text-neutral-600" /></div>
               <div>
                 <h4 className="font-black text-neutral-900 text-sm uppercase tracking-tight">Sigue entrenando</h4>
                 <p className="text-neutral-600 text-xs font-medium mt-1 leading-relaxed">

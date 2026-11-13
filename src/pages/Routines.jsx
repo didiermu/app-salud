@@ -253,7 +253,7 @@ const Routines = () => {
                                 <h3 className="text-xl font-bold text-neutral-900 flex items-center gap-2">
                                     <Plus
                                         size={24}
-                                        className="text-neutral-400"
+                                        className="text-neutral-600"
                                     />
                                     {editingRoutineId
                                         ? "Editando Rutina"
@@ -274,7 +274,7 @@ const Routines = () => {
 
                             <div className="space-y-6">
                                 <div className="space-y-2">
-                                    <label className="text-xs font-black uppercase tracking-widest text-neutral-400">
+                                    <label className="text-xs font-black uppercase tracking-widest text-neutral-600">
                                         Nombre de la Rutina
                                     </label>
                                     <input
@@ -333,7 +333,7 @@ const Routines = () => {
                         {!isBuilding && (
                             <Link
                                 to="/catalog"
-                                className="text-xs font-black uppercase tracking-widest text-neutral-400 hover:text-neutral-900 transition-colors flex items-center gap-1"
+                                className="text-xs font-black uppercase tracking-widest text-neutral-600 hover:text-neutral-900 transition-colors flex items-center gap-1"
                             >
                                 <Plus size={14} /> Crear Nuevo
                             </Link>
@@ -382,7 +382,7 @@ const Routines = () => {
                                         <h4 className="font-black text-neutral-900 text-2xl uppercase tracking-tighter leading-none mb-2 pr-16">
                                             {routine.name}
                                         </h4>
-                                        <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest mb-6">
+                                        <p className="text-[10px] text-neutral-600 font-bold uppercase tracking-widest mb-6">
                                             {routine.exercises.length}{" "}
                                             ejercicios
                                         </p>
@@ -439,7 +439,7 @@ const Routines = () => {
                                 <h3 className="text-xl font-bold text-neutral-900 mb-2">
                                     Aún no tienes rutinas
                                 </h3>
-                                <p className="text-sm text-neutral-400 font-medium mb-8 max-w-sm mx-auto">
+                                <p className="text-sm text-neutral-600 font-medium mb-8 max-w-sm mx-auto">
                                     Agrega ejercicios desde el catálogo para
                                     construir tu primer plan de entrenamiento.
                                 </p>
@@ -471,7 +471,7 @@ const Routines = () => {
                             className="space-y-6"
                         >
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-600">
                                     Nombre del Ejercicio
                                 </label>
                                 <input
@@ -489,7 +489,7 @@ const Routines = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-600">
                                     Descripción
                                 </label>
                                 <textarea
@@ -508,7 +508,7 @@ const Routines = () => {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-neutral-600">
                                         Músculo
                                     </label>
                                     <input
@@ -524,7 +524,7 @@ const Routines = () => {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-neutral-600">
                                         Equipo
                                     </label>
                                     <input
@@ -573,7 +573,7 @@ const Routines = () => {
 
                                 {customForm.hasTimer && (
                                     <div className="space-y-2 animate-in slide-in-from-top-2 fade-in duration-300 pl-9">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-neutral-600">
                                             Duración por Serie (Segundos)
                                         </label>
                                         <input
@@ -601,7 +601,7 @@ const Routines = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 text-center block">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-600 text-center block">
                                     Banner (Imagen) y Video (Opcionales)
                                 </label>
                                 <div className="flex gap-4">
@@ -617,7 +617,7 @@ const Routines = () => {
                                         ) : (
                                             <Plus className="text-neutral-300 group-hover:text-neutral-900 mb-1" />
                                         )}
-                                        <span className="text-[8px] font-black uppercase tracking-widest text-neutral-400 text-center">
+                                        <span className="text-[8px] font-black uppercase tracking-widest text-neutral-600 text-center">
                                             {uploadingBanner
                                                 ? "Subiendo..."
                                                 : "Subir Banner"}
@@ -644,7 +644,7 @@ const Routines = () => {
                                                 className="text-neutral-300 group-hover:text-neutral-900 mb-1"
                                             />
                                         )}
-                                        <span className="text-[8px] font-black uppercase tracking-widest text-neutral-400 text-center">
+                                        <span className="text-[8px] font-black uppercase tracking-widest text-neutral-600 text-center">
                                             {uploadingVideo
                                                 ? "Subiendo..."
                                                 : "Subir Video"}
@@ -690,7 +690,7 @@ const Routines = () => {
                                     </div>
                                 )}
                                 <div className="mt-4 space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-neutral-600">
                                         URL del Video (YouTube, MP4, etc)
                                     </label>
                                     <input
@@ -806,7 +806,7 @@ const Routines = () => {
                             {selectedExercise.instructions &&
                             selectedExercise.instructions.length > 0 ? (
                                 <div className="space-y-4 mb-8 flex-1">
-                                    <h4 className="text-xs font-black uppercase tracking-widest text-neutral-400">
+                                    <h4 className="text-xs font-black uppercase tracking-widest text-neutral-600">
                                         Instrucciones
                                     </h4>
                                     <ul className="space-y-3">
@@ -827,7 +827,7 @@ const Routines = () => {
                                 </div>
                             ) : (
                                 <div className="flex-1 flex items-center justify-center py-8">
-                                    <p className="text-neutral-400 text-sm italic">
+                                    <p className="text-neutral-600 text-sm italic">
                                         No hay instrucciones detalladas para
                                         este ejercicio.
                                     </p>
@@ -915,7 +915,7 @@ const SortableExerciseItem = ({
                     {...attributes}
                     {...listeners}
                     onClick={(e) => e.stopPropagation()}
-                    className="p-1.5 text-neutral-400 hover:text-neutral-700 hover:bg-white rounded-full transition-colors cursor-grab active:cursor-grabbing"
+                    className="p-1.5 text-neutral-600 hover:text-neutral-700 hover:bg-white rounded-full transition-colors cursor-grab active:cursor-grabbing"
                     title="Arrastrar para reordenar"
                 >
                     <GripVertical size={14} />
@@ -944,7 +944,7 @@ const SortableExerciseItem = ({
                     <h4 className="font-bold text-neutral-800 capitalize">
                         {exercise.name}
                     </h4>
-                    <p className="text-xs text-neutral-400 uppercase font-bold tracking-tighter">
+                    <p className="text-xs text-neutral-600 uppercase font-bold tracking-tighter">
                         {exercise.target}
                     </p>
                 </div>
@@ -955,7 +955,7 @@ const SortableExerciseItem = ({
                 className="flex flex-wrap gap-2 items-center w-full"
             >
                 <div className="flex flex-col flex-1 min-w-[60px]">
-                    <label className="text-[9px] font-black uppercase text-neutral-400 mb-1">
+                    <label className="text-[9px] font-black uppercase text-neutral-600 mb-1">
                         Series
                     </label>
                     <input
@@ -975,7 +975,7 @@ const SortableExerciseItem = ({
                     />
                 </div>
                 <div className="flex flex-col flex-1 min-w-[60px]">
-                    <label className="text-[9px] font-black uppercase text-neutral-400 mb-1">
+                    <label className="text-[9px] font-black uppercase text-neutral-600 mb-1">
                         Repeticiones
                     </label>
                     <input
@@ -997,7 +997,7 @@ const SortableExerciseItem = ({
                     />
                 </div>
                 <div className="flex flex-col flex-1 min-w-[60px]">
-                    <label className="text-[9px] font-black uppercase text-neutral-400 mb-1">
+                    <label className="text-[9px] font-black uppercase text-neutral-600 mb-1">
                         Peso (kg)
                     </label>
                     <input
@@ -1019,7 +1019,7 @@ const SortableExerciseItem = ({
                     />
                 </div>
                 <div className="flex flex-col flex-1 min-w-[70px]">
-                    <label className="text-[9px] font-black uppercase text-neutral-400 mb-1">
+                    <label className="text-[9px] font-black uppercase text-neutral-600 mb-1">
                         Descanso (s)
                     </label>
                     <input
@@ -1041,7 +1041,7 @@ const SortableExerciseItem = ({
                     />
                 </div>
                 <div className="flex flex-col flex-1 min-w-[150px]">
-                    <label className="text-[9px] font-black uppercase text-neutral-400 mb-1">
+                    <label className="text-[9px] font-black uppercase text-neutral-600 mb-1">
                         Secuencia
                     </label>
                     <div className="flex gap-1">
@@ -1058,7 +1058,7 @@ const SortableExerciseItem = ({
                                 "flex-1 rounded-lg p-2 flex items-center justify-center transition-all border text-[9px] font-black uppercase tracking-tight",
                                 !isAlternated(exercise)
                                     ? "bg-neutral-900 text-white border-neutral-900"
-                                    : "bg-white text-neutral-400 border-neutral-200 hover:text-neutral-700",
+                                    : "bg-white text-neutral-600 border-neutral-200 hover:text-neutral-700",
                             )}
                         >
                             Continuo
@@ -1076,7 +1076,7 @@ const SortableExerciseItem = ({
                                 "flex-1 rounded-lg p-2 flex items-center justify-center transition-all border text-[9px] font-black uppercase tracking-tight",
                                 isAlternated(exercise)
                                     ? "bg-neutral-900 text-white border-neutral-900"
-                                    : "bg-white text-neutral-400 border-neutral-200 hover:text-neutral-700",
+                                    : "bg-white text-neutral-600 border-neutral-200 hover:text-neutral-700",
                             )}
                         >
                             Alternado
@@ -1085,12 +1085,21 @@ const SortableExerciseItem = ({
                 </div>
                 {isAlternated(exercise) && (
                     <div className="w-full flex flex-col mt-2">
-                        <span className="text-[9px] font-black uppercase text-neutral-400 text-center">
+                        <span className="text-[9px] font-black uppercase text-neutral-600 text-center">
                             Intercala sus series con ejercicios alternados
                             consecutivos; después sigue con {nextName}
                         </span>
                     </div>
                 )}
+                <div className="w-full mt-3">
+                    <p className="text-[9px] font-black uppercase text-neutral-600 mb-1">
+                        Historial de avance
+                    </p>
+                    <ExerciseLoadHistory
+                        exerciseName={exercise.name}
+                        maxEntries={8}
+                    />
+                </div>
                 <div className="w-full mt-3 p-3 bg-neutral-50 border border-neutral-200 rounded-xl">
                     <label className="flex items-center justify-between gap-3 cursor-pointer">
                         <div className="flex items-center gap-2">
@@ -1124,7 +1133,7 @@ const SortableExerciseItem = ({
                     </label>
                     {exercise.hasTimer && (
                         <div className="mt-2 flex items-center gap-2">
-                            <label className="text-[9px] font-black uppercase text-neutral-400">
+                            <label className="text-[9px] font-black uppercase text-neutral-600">
                                 Duración (s)
                             </label>
                             <input
@@ -1225,7 +1234,7 @@ const SortableExerciseList = ({
                                 <h4 className="font-bold text-neutral-800 capitalize">
                                     {activeExercise.name}
                                 </h4>
-                                <p className="text-xs text-neutral-400 uppercase font-bold tracking-tighter">
+                                <p className="text-xs text-neutral-600 uppercase font-bold tracking-tighter">
                                     {activeExercise.target}
                                 </p>
                             </div>

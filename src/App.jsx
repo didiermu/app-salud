@@ -12,6 +12,7 @@ import Profile from "./pages/Profile";
 import Catalog from "./pages/Catalog";
 import Routines from "./pages/Routines";
 import Workout from "./pages/Workout";
+import Reports from "./pages/Reports";
 import CountdownTimer from "./components/CountdownTimer";
 import AuthGate from "./components/AuthGate";
 import ThemeToggle from "./components/ThemeToggle";
@@ -25,6 +26,7 @@ import {
     Timer,
     X,
     LogOut,
+    BarChart3,
 } from "lucide-react";
 import clsx from "clsx";
 
@@ -49,6 +51,7 @@ const Layout = ({ children }) => {
         { path: "/", label: "Inicio", icon: <LayoutDashboard size={24} /> },
         { path: "/catalog", label: "Explorar", icon: <Search size={24} /> },
         { path: "/routines", label: "Planes", icon: <Dumbbell size={24} /> },
+        { path: "/reports", label: "Reportes", icon: <BarChart3 size={24} /> },
         { path: "/profile", label: "Perfil", icon: <User size={24} /> },
     ];
 
@@ -62,7 +65,7 @@ const Layout = ({ children }) => {
                         className="text-2xl font-black text-neutral-900 tracking-tighter flex items-center gap-2"
                     >
                         <Activity className="text-blue-600" />
-                        SALUD<span className="text-neutral-400">APP</span>
+                        SALUD<span className="text-neutral-600">APP</span>
                     </Link>
 
                     <div className="flex items-center gap-2">
@@ -103,7 +106,7 @@ const Layout = ({ children }) => {
                         )}
                         <button
                             onClick={() => setShowLogoutModal(true)}
-                            className="p-2.5 rounded-2xl text-neutral-400 hover:bg-red-50 hover:text-red-500 transition-all"
+                            className="p-2.5 rounded-2xl text-neutral-600 hover:bg-red-50 hover:text-red-500 transition-all"
                             title="Cerrar sesión"
                         >
                             <LogOut size={20} />
@@ -127,7 +130,7 @@ const Layout = ({ children }) => {
                                         "flex flex-col items-center justify-center w-full h-full space-y-1 transition-all relative",
                                         isActive
                                             ? "text-neutral-900"
-                                            : "text-neutral-400",
+                                            : "text-neutral-600",
                                     )}
                                 >
                                     <div
@@ -156,7 +159,7 @@ const Layout = ({ children }) => {
                     ))}
                     <button
                         onClick={() => setShowTimerModal(true)}
-                        className="w-full h-full flex flex-col items-center justify-center space-y-1 text-neutral-400"
+                        className="w-full h-full flex flex-col items-center justify-center space-y-1 text-neutral-600"
                     >
                         <div className="p-1.5 rounded-xl">
                             <Timer size={24} />
@@ -180,7 +183,7 @@ const Layout = ({ children }) => {
                         <p className="text-[11px] font-black text-neutral-900 truncate leading-tight">
                             {user?.displayName || "Atleta"}
                         </p>
-                        <p className="text-[9px] font-bold text-neutral-400 truncate leading-tight">
+                        <p className="text-[9px] font-bold text-neutral-600 truncate leading-tight">
                             {user?.email}
                         </p>
                     </div>
@@ -189,7 +192,7 @@ const Layout = ({ children }) => {
                     <ThemeToggle />
                     <button
                         onClick={() => setShowLogoutModal(true)}
-                        className="p-2.5 rounded-2xl text-neutral-400 hover:bg-red-50 hover:text-red-500 transition-all shrink-0"
+                        className="p-2.5 rounded-2xl text-neutral-600 hover:bg-red-50 hover:text-red-500 transition-all shrink-0"
                         title="Cerrar sesión"
                     >
                         <LogOut size={18} />
@@ -275,6 +278,7 @@ function App() {
                         <Route path="/profile" element={<Profile />} />
                         <Route path="/catalog" element={<Catalog />} />
                         <Route path="/routines" element={<Routines />} />
+                        <Route path="/reports" element={<Reports />} />
                         <Route path="/workout/:id" element={<Workout />} />
                     </Routes>
                 </Layout>

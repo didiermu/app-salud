@@ -79,11 +79,11 @@ const CountdownTimer = () => {
         )}>
             <div className="flex items-center gap-2 mb-6">
                 <Timer size={20} className={clsx(
-                    isRunning ? "text-blue-200" : isFinished ? "text-green-200" : "text-neutral-400"
+                    isRunning ? "text-blue-200" : isFinished ? "text-green-200" : "text-neutral-600"
                 )} />
                 <h4 className={clsx(
                     "text-[10px] font-black uppercase tracking-widest",
-                    isRunning ? "text-blue-200" : isFinished ? "text-green-200" : "text-neutral-400"
+                    isRunning ? "text-blue-200" : isFinished ? "text-green-200" : "text-neutral-600"
                 )}>
                     Cronómetro
                 </h4>
@@ -117,7 +117,7 @@ const CountdownTimer = () => {
                                     {String(hours).padStart(2, "0")}
                                 </span>
                             </div>
-                            <span className="text-[8px] font-black uppercase tracking-widest text-neutral-400">Hrs</span>
+                            <span className="text-[8px] font-black uppercase tracking-widest text-neutral-600">Hrs</span>
                             <button
                                 onClick={() => adjustValue(setHours, hours, 0, 23, -1)}
                                 className={clsx(
@@ -147,7 +147,7 @@ const CountdownTimer = () => {
                                     {String(minutes).padStart(2, "0")}
                                 </span>
                             </div>
-                            <span className="text-[8px] font-black uppercase tracking-widest text-neutral-400">Min</span>
+                            <span className="text-[8px] font-black uppercase tracking-widest text-neutral-600">Min</span>
                             <button
                                 onClick={() => adjustValue(setMinutes, minutes, 0, 59, -1)}
                                 className={clsx(
@@ -177,7 +177,7 @@ const CountdownTimer = () => {
                                     {String(seconds).padStart(2, "0")}
                                 </span>
                             </div>
-                            <span className="text-[8px] font-black uppercase tracking-widest text-neutral-400">Seg</span>
+                            <span className="text-[8px] font-black uppercase tracking-widest text-neutral-600">Seg</span>
                             <button
                                 onClick={() => adjustValue(setSeconds, seconds, 0, 59, -5)}
                                 className={clsx(

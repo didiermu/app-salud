@@ -30,6 +30,7 @@ const Dashboard = () => {
 
     const [modal, setModal] = useState({ isOpen: false, sessionId: null });
     const [showAllHistory, setShowAllHistory] = useState(false);
+    const [expandedId, setExpandedId] = useState(null);
     const [regDate, setRegDate] = useState(
         new Date().toISOString().split("T")[0],
     );
@@ -49,6 +50,20 @@ const Dashboard = () => {
         setShowSuccess(true);
         setShowAllHistory(false);
         setTimeout(() => setShowSuccess(false), 2500);
+    };
+
+    // Sesiones antiguas no guardaron ejercicios: se toman de la rutina con
+    // el mismo nombre (configuración actual de la rutina).
+    const getSessionExercises = (session) => {
+        if (session.exercises?.length > 0) return session.exercises;
+        const routine = routines.find((r) => r.name === session.routineName);
+        return (routine?.exercises || []).map((ex) => ({
+            exerciseId: ex.id,
+            name: ex.name,
+            sets: ex.sets,
+            reps: ex.reps,
+            weight: ex.weight || 0,
+        }));
     };
 
     const sortedHistory = [...history].reverse();
@@ -113,7 +128,7 @@ const Dashboard = () => {
                             {stat.icon}
                         </div>
                         <div>
-                            <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-1">
+                            <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-1">
                                 {stat.label}
                             </p>
                             <p className="text-3xl font-black text-neutral-900">
@@ -136,13 +151,13 @@ const Dashboard = () => {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                        <label className="text-[9px] font-black uppercase tracking-widest text-neutral-400 ml-1">
+                        <label className="text-[9px] font-black uppercase tracking-widest text-neutral-600 ml-1">
                             Fecha
                         </label>
                         <div className="relative">
                             <Calendar
                                 size={14}
-                                className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
+                                className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-600 pointer-events-none"
                             />
                             <input
                                 type="date"
@@ -153,13 +168,13 @@ const Dashboard = () => {
                         </div>
                     </div>
                     <div className="space-y-1.5">
-                        <label className="text-[9px] font-black uppercase tracking-widest text-neutral-400 ml-1">
+                        <label className="text-[9px] font-black uppercase tracking-widest text-neutral-600 ml-1">
                             Rutina
                         </label>
                         <div className="relative">
                             <Dumbbell
                                 size={14}
-                                className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
+                                className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-600 pointer-events-none"
                             />
                             <select
                                 value={regRoutineId}
@@ -186,7 +201,7 @@ const Dashboard = () => {
                             "px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-xl",
                             regRoutineId
                                 ? "bg-neutral-900 text-white hover:scale-105 active:scale-95 shadow-neutral-200"
-                                : "bg-neutral-200 text-neutral-400 cursor-not-allowed",
+                                : "bg-neutral-200 text-neutral-600 cursor-not-allowed",
                         )}
                     >
                         Registrar Sesión
@@ -215,63 +230,124 @@ const Dashboard = () => {
                                     {visibleHistory.map((session) => (
                                         <div
                                             key={session.id}
-                                            className="p-6 flex justify-between items-center group hover:bg-neutral-50 transition-colors relative"
+                                            className="p-6 group hover:bg-neutral-50 transition-colors"
                                         >
-                                            <div className="flex-1 pr-12">
-                                                <h4 className="font-black text-neutral-900 text-xl uppercase tracking-tighter">
-                                                    {session.routineName}
-                                                </h4>
-                                                <div className="flex flex-wrap items-center gap-3 mt-2">
-                                                    <span className="text-xs font-bold text-neutral-500 uppercase tracking-widest bg-white border border-neutral-200 px-3 py-1 rounded-full shadow-sm">
-                                                        {new Date(
-                                                            session.date,
-                                                        ).toLocaleDateString(
-                                                            "es-ES",
-                                                            {
-                                                                day: "2-digit",
-                                                                month: "short",
-                                                                year: "numeric",
-                                                            },
+                                            <div className="flex justify-between items-center gap-3">
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="font-black text-neutral-900 text-xl uppercase tracking-tighter">
+                                                        {session.routineName}
+                                                    </h4>
+                                                    <div className="flex flex-wrap items-center gap-3 mt-2">
+                                                        <span className="text-xs font-bold text-neutral-500 uppercase tracking-widest bg-white border border-neutral-200 px-3 py-1 rounded-full shadow-sm">
+                                                            {new Date(
+                                                                session.date,
+                                                            ).toLocaleDateString(
+                                                                "es-ES",
+                                                                {
+                                                                    day: "2-digit",
+                                                                    month: "short",
+                                                                    year: "numeric",
+                                                                },
+                                                            )}
+                                                        </span>
+                                                        <span className="text-xs font-bold text-neutral-500 uppercase tracking-widest">
+                                                            {session.exercisesCount}{" "}
+                                                            EJERCICIOS
+                                                        </span>
+                                                        <span
+                                                            className={clsx(
+                                                                "text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full",
+                                                                session.status ===
+                                                                    "Completado"
+                                                                    ? "bg-green-100 text-green-700"
+                                                                    : "bg-orange-100 text-orange-700",
+                                                            )}
+                                                        >
+                                                            {session.status ||
+                                                                "Completado"}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center gap-2 shrink-0">
+                                                    {getSessionExercises(session).length >
+                                                        0 && (
+                                                            <button
+                                                                onClick={() =>
+                                                                    setExpandedId(
+                                                                        expandedId ===
+                                                                            session.id
+                                                                            ? null
+                                                                            : session.id,
+                                                                    )
+                                                                }
+                                                                className="p-3 bg-white border border-neutral-200 text-neutral-600 hover:text-neutral-900 hover:border-neutral-400 rounded-xl transition-all shadow-sm"
+                                                                title="Ver ejercicios"
+                                                                aria-expanded={
+                                                                    expandedId ===
+                                                                    session.id
+                                                                }
+                                                            >
+                                                                {expandedId ===
+                                                                    session.id ? (
+                                                                    <ChevronUp
+                                                                        size={18}
+                                                                    />
+                                                                ) : (
+                                                                    <ChevronDown
+                                                                        size={18}
+                                                                    />
+                                                                )}
+                                                            </button>
                                                         )}
-                                                    </span>
-                                                    <span className="text-xs font-bold text-neutral-500 uppercase tracking-widest">
-                                                        {session.exercisesCount}{" "}
-                                                        EJERCICIOS
-                                                    </span>
-                                                    <span
-                                                        className={clsx(
-                                                            "text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full",
-                                                            session.status ===
-                                                                "Completado"
-                                                                ? "bg-green-100 text-green-700"
-                                                                : "bg-orange-100 text-orange-700",
-                                                        )}
+                                                    <button
+                                                        onClick={() =>
+                                                            handleDeleteClick(
+                                                                session.id,
+                                                            )
+                                                        }
+                                                        className="p-3 bg-white border border-neutral-200 text-neutral-600 hover:text-red-500 hover:border-red-200 hover:bg-red-50 rounded-xl transition-all shadow-sm"
+                                                        title="Eliminar registro"
                                                     >
-                                                        {session.status ||
-                                                            "Completado"}
-                                                    </span>
+                                                        <Trash2 size={18} />
+                                                    </button>
                                                 </div>
                                             </div>
 
-                                            <button
-                                                onClick={() =>
-                                                    handleDeleteClick(
-                                                        session.id,
-                                                    )
-                                                }
-                                                className="absolute right-6 p-3 bg-white border border-neutral-200 text-neutral-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 rounded-xl transition-all shadow-sm"
-                                                title="Eliminar registro"
-                                            >
-                                                {" "}
-                                                <Trash2 size={18} />
-                                            </button>
+                                            {expandedId === session.id &&
+                                                getSessionExercises(session).length >
+                                                0 && (
+                                                    <ul className="mt-4 space-y-2">
+                                                        {getSessionExercises(session).map(
+                                                            (ex, i) => (
+                                                                <li
+                                                                    key={`${ex.exerciseId}-${i}`}
+                                                                    className="bg-neutral-50 border border-neutral-100 rounded-xl px-4 py-3"
+                                                                >
+                                                                    <p className="font-bold text-neutral-900 text-sm">
+                                                                        {ex.name}
+                                                                    </p>
+                                                                    <p className="text-xs text-neutral-500 font-medium mt-1">
+                                                                        Series:{" "}
+                                                                        {ex.sets}{" "}
+                                                                        · Reps:{" "}
+                                                                        {ex.reps}{" "}
+                                                                        · Peso:{" "}
+                                                                        {ex.weight + " k" ||
+                                                                            0}
+                                                                    </p>
+                                                                </li>
+                                                            ),
+                                                        )}
+                                                    </ul>
+                                                )}
                                         </div>
                                     ))}
                                 </div>
                                 {hiddenCount > 0 && !showAllHistory && (
                                     <button
                                         onClick={() => setShowAllHistory(true)}
-                                        className="w-full py-4 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-neutral-400 hover:text-neutral-900 hover:bg-neutral-50 transition-colors border-t border-neutral-100"
+                                        className="w-full py-4 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 transition-colors border-t border-neutral-100"
                                     >
                                         <ChevronDown size={14} /> Ver más (
                                         {hiddenCount} registros más)
@@ -280,7 +356,7 @@ const Dashboard = () => {
                                 {showAllHistory && sortedHistory.length > 5 && (
                                     <button
                                         onClick={() => setShowAllHistory(false)}
-                                        className="w-full py-4 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-neutral-400 hover:text-neutral-900 hover:bg-neutral-50 transition-colors border-t border-neutral-100"
+                                        className="w-full py-4 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 transition-colors border-t border-neutral-100"
                                     >
                                         <ChevronUp size={14} /> Ver menos
                                     </button>
@@ -295,7 +371,7 @@ const Dashboard = () => {
                                 <p className="text-neutral-900 font-bold text-lg mb-1">
                                     Sin actividad registrada
                                 </p>
-                                <p className="text-neutral-400 text-sm font-medium max-w-sm mb-6">
+                                <p className="text-neutral-600 text-sm font-medium max-w-sm mb-6">
                                     Completa tu primera rutina de entrenamiento
                                     y tu progreso aparecerá aquí.
                                 </p>
@@ -320,7 +396,7 @@ const Dashboard = () => {
                             <br />
                             Evolución
                         </h3>
-                        <p className="text-neutral-400 font-medium text-sm leading-relaxed mb-8">
+                        <p className="text-neutral-600 font-medium text-sm leading-relaxed mb-8">
                             Mantener un registro constante de tus entrenamientos
                             es la clave para alcanzar tus objetivos. ¡Sigue así!
                         </p>
@@ -333,7 +409,7 @@ const Dashboard = () => {
                                         ).length
                                     }
                                 </p>
-                                <p className="text-[9px] font-black uppercase tracking-widest text-neutral-400 mt-1">
+                                <p className="text-[9px] font-black uppercase tracking-widest text-neutral-600 mt-1">
                                     Completas
                                 </p>
                             </div>
@@ -345,7 +421,7 @@ const Dashboard = () => {
                                         0,
                                     )}
                                 </p>
-                                <p className="text-[9px] font-black uppercase tracking-widest text-neutral-400 mt-1">
+                                <p className="text-[9px] font-black uppercase tracking-widest text-neutral-600 mt-1">
                                     Ejercicios
                                 </p>
                             </div>

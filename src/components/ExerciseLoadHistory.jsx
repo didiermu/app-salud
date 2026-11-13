@@ -42,13 +42,19 @@ const ExerciseLoadHistory = ({ exerciseName, maxEntries = 5 }) => {
     }
 
     const formatDate = (iso) => {
-        const d = new Date(iso);
-        return `${d.getDate()}/${d.getMonth() + 1}`;
+        return new Date(iso)
+            .toLocaleDateString("es-ES", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+            })
+            .replace(/\./g, "")
+            .replace(/\s+de\s+/g, " ");
     };
 
     return (
         <div className="flex items-center gap-2 py-2 px-3 bg-neutral-50 rounded-lg overflow-x-auto scrollbar-hide">
-            <History size={14} className="text-neutral-400 flex-shrink-0" />
+            <History size={14} className="text-neutral-600 flex-shrink-0" />
             <div className="flex items-center gap-1.5 flex-shrink-0">
                 {historyEntries.map((entry, i) => {
                     const prev = i > 0 ? historyEntries[i - 1] : null;
@@ -76,23 +82,23 @@ const ExerciseLoadHistory = ({ exerciseName, maxEntries = 5 }) => {
                             key={entry.date}
                             className="flex items-center gap-1"
                         >
-                            <span className="text-xs font-bold text-neutral-400">
+                            <span className="text-xs font-bold text-neutral-600">
                                 {formatDate(entry.date)}
                             </span>
                             <div
                                 className={clsx(
-                                    "px-1.5 py-0.5 rounded text-xs font-black tabular-nums flex items-center gap-0.5",
+                                    "px-1.5 py-0.5 rounded text-xs font-black tabular-nums flex items-center gap-1 whitespace-nowrap",
                                     changed
                                         ? "bg-blue-100 text-blue-700"
                                         : "bg-neutral-100 text-neutral-500",
                                 )}
                             >
-                                <span>{entry.reps} reps</span>
-                                <span className="text-neutral-300">-</span>
+                                <span>Series: {entry.sets ?? "-"}</span>
+                                <span className="text-neutral-300">·</span>
+                                <span>Reps: {entry.reps}</span>
+                                <span className="text-neutral-300">·</span>
                                 <span>
-                                    {entry.weight > 0
-                                        ? `${entry.weight} kg`
-                                        : "0kg"}
+                                    Peso: {entry.weight || 0} kg
                                 </span>
                             </div>
                             {weightTrend === "up" && (

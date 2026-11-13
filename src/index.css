@@ -218,3 +218,22 @@
         color: #d0a5ff !important;
     }
 }
+
+
+/* Tipografía: +2pt en texto general (los títulos h1-h6 conservan su tamaño original) */
+.text-xs { font-size: calc(0.75rem + 2pt); line-height: 1.4; }
+.text-sm { font-size: calc(0.875rem + 2pt); line-height: 1.5; }
+.text-base { font-size: calc(1rem + 2pt); line-height: 1.6; }
+.text-\[8px\] { font-size: calc(8px + 2pt); }
+.text-\[9px\] { font-size: calc(9px + 2pt); }
+.text-\[10px\] { font-size: calc(10px + 2pt); }
+.text-\[11px\] { font-size: calc(11px + 2pt); }
+
+h1 .text-xs, h2 .text-xs, h3 .text-xs, h4 .text-xs, h5 .text-xs, h6 .text-xs,
+h1.text-xs, h2.text-xs, h3.text-xs, h4.text-xs, h5.text-xs, h6.text-xs { font-size: 0.75rem; line-height: 1rem; }
+h1.text-sm, h2.text-sm, h3.text-sm, h4.text-sm, h5.text-sm, h6.text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+h1.text-base, h2.text-base, h3.text-base, h4.text-base, h5.text-base, h6.text-base { font-size: 1rem; line-height: 1.5rem; }
+h1.text-\[8px\], h2.text-\[8px\], h3.text-\[8px\], h4.text-\[8px\], h5.text-\[8px\], h6.text-\[8px\] { font-size: 8px; }
+h1.text-\[9px\], h2.text-\[9px\], h3.text-\[9px\], h4.text-\[9px\], h5.text-\[9px\], h6.text-\[9px\] { font-size: 9px; }
+h1.text-\[10px\], h2.text-\[10px\], h3.text-\[10px\], h4.text-\[10px\], h5.text-\[10px\], h6.text-\[10px\] { font-size: 10px; }
+h1.text-\[11px\], h2.text-\[11px\], h3.text-\[11px\], h4.text-\[11px\], h5.text-\[11px\], h6.text-\[11px\] { font-size: 11px; }

@@ -25,6 +25,7 @@ vi.mock("../firebase", () => ({ db: {} }));
 import {
     LEGACY_OWNER_EMAIL,
     isLegacyOwner,
+    mergeLegacyHistory,
     migrateLegacyData,
     prepareUserData,
     publishLibrarySeed,
@@ -330,5 +331,28 @@ describe("prepareUserData", () => {
         expect(docs.has(scopedDocId(OTRO.uid, STORAGE_KEYS.history))).toBe(
             false,
         );
+    });
+});
+
+describe("mergeLegacyHistory", () => {
+    it("añade al historial propio las sesiones heredadas que faltan, una sola vez", async () => {
+        setLegacyDocs();
+        const own = scopedDocId(DIDIER.uid, STORAGE_KEYS.history);
+        docs.set(own, {
+            value: legacyBlob({
+                history: [{ id: "n1", routineName: "Nueva", date: "2026-11-13" }],
+            }),
+        });
+
+        await expect(mergeLegacyHistory(DIDIER)).resolves.toBe(1);
+        const ids = readState(own).history.map((s) => s.id);
+        expect(ids).toEqual(["h1", "n1"]);
+
+        await expect(mergeLegacyHistory(DIDIER)).resolves.toBe(0);
+    });
+
+    it("no hace nada para usuarios que no son el dueño", async () => {
+        setLegacyDocs();
+        await expect(mergeLegacyHistory(OTRO)).resolves.toBe(0);
     });
 });

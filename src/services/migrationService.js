@@ -171,11 +171,61 @@ export const seedUserLibrary = async (uid) => {
 };
 
 /**
+ * Une al historial del dueño las sesiones heredadas (`history-storage` sin
+ * scope) que aún no estén en su historial. Cubre el caso en que el usuario
+ * ya tenía un historial propio y por eso la migración no copió las demás.
+ * Se ejecuta una sola vez (flag por uid) para no resucitar sesiones que
+ * el usuario elimine después.
+ * @returns {Promise<number>} sesiones añadidas.
+ */
+export const mergeLegacyHistory = async (user) => {
+  if (!user || !isLegacyOwner(user)) return 0;
+
+  const flagId = scopedDocId(user.uid, 'legacy-history-merged');
+  const flagSnap = await getDoc(doc(db, 'app_storage', flagId));
+  if (flagSnap.exists()) return 0;
+
+  const parseHistory = (blob) => {
+    try {
+      const h = JSON.parse(blob)?.state?.history;
+      return Array.isArray(h) ? h : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const legacy = parseHistory(await readDocValue(legacyDocId(STORAGE_KEYS.history)));
+  const scopedId = scopedDocId(user.uid, STORAGE_KEYS.history);
+  const scopedBlob = await readDocValue(scopedId);
+  const current = parseHistory(scopedBlob);
+
+  const known = new Set(current.map((s) => s.id));
+  const missing = legacy.filter((s) => !known.has(s.id));
+
+  if (missing.length > 0) {
+    const merged = [...current, ...missing].sort(
+      (a, b) => new Date(a.date) - new Date(b.date)
+    );
+    const base = scopedBlob ? JSON.parse(scopedBlob) : { state: {}, version: 0 };
+    base.state = { ...base.state, history: merged };
+    await writeDocValue(scopedId, JSON.stringify(base));
+  }
+
+  await writeDocValue(flagId, JSON.stringify({ added: missing.length }));
+  return missing.length;
+};
+
+/**
  * Rutina completa de post-login: migra los datos heredados si toca
  * y asegura que el usuario tenga su propia biblioteca de ejercicios.
  */
 export const prepareUserData = async (user) => {
   await migrateLegacyData(user);
+  try {
+    await mergeLegacyHistory(user);
+  } catch (err) {
+    console.warn('[Migration] No se pudo unir el historial heredado:', err.message);
+  }
   await publishLibrarySeed();
   await seedUserLibrary(user.uid);
 };

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useRoutineStore } from "../store/useStore";
+import { useRoutineStore, useHistoryStore } from "../store/useStore";
 import {
     Play,
     Pause,
@@ -23,6 +23,9 @@ const Workout = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { routines, updateRoutineExercises } = useRoutineStore();
+
+    const addSession = useHistoryStore((s) => s.addSession);
+    const sessionSavedRef = useRef(false);
 
     const routine = routines.find((r) => r.id === id);
 
@@ -215,6 +218,33 @@ const Workout = () => {
                     title: "¡Misión Cumplida!",
                     message: "Entrenamiento finalizado. ¡Buen trabajo!",
                     onConfirm: () => {
+                        if (!sessionSavedRef.current) {
+                            sessionSavedRef.current = true;
+                            const seenIds = new Set();
+                            const exercises = currentSteps
+                                .filter((s) => {
+                                    if (seenIds.has(s.id)) return false;
+                                    seenIds.add(s.id);
+                                    return true;
+                                })
+                                .map((s) => ({
+                                    exerciseId: s.id,
+                                    name: s.name,
+                                    sets: s.configuredSets ?? s.sets,
+                                    reps: s.reps,
+                                    weight: s.weight || 0,
+                                }));
+                            addSession({
+                                routineName: routine?.name || "Rutina",
+                                date: new Date().toISOString(),
+                                exercisesCount:
+                                    exercises.length ||
+                                    routine?.exercises?.length ||
+                                    0,
+                                exercises,
+                                status: "Completado",
+                            });
+                        }
                         setModal({
                             isOpen: false,
                             type: "success",
@@ -227,7 +257,7 @@ const Workout = () => {
                 });
             }
         },
-        [navigate, syncRoutine],
+        [navigate, syncRoutine, addSession, routine, currentSteps],
     );
 
     const handleNextStep = useCallback(() => {
@@ -784,7 +814,7 @@ const Workout = () => {
                                                     "text-[10px] font-bold uppercase tracking-wider",
                                                     isCurrent
                                                         ? "text-white/60"
-                                                        : "text-neutral-400",
+                                                        : "text-neutral-600",
                                                 )}
                                             >
                                                 {isAlternated(ex)

@@ -80,7 +80,7 @@ const Profile = () => {
                         {/* IMC Card */}
                         <div className="bg-neutral-900 text-white p-8 rounded-[2rem] flex flex-col items-center justify-center space-y-4 shadow-2xl relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16" />
-                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-400">
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-600">
                                 Índice de Masa Corporal
                             </span>
                             <span className="text-7xl font-black tracking-tighter">
@@ -101,11 +101,11 @@ const Profile = () => {
                         {/* Resumen Rápido */}
                         <div className="bg-white border-2 border-neutral-100 p-8 rounded-[2rem] flex flex-col justify-center space-y-6">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-neutral-50 rounded-2xl flex items-center justify-center text-neutral-400">
+                                <div className="w-12 h-12 bg-neutral-50 rounded-2xl flex items-center justify-center text-neutral-600">
                                     <Scale size={24} />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">
+                                    <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest">
                                         Peso Actual
                                     </p>
                                     <p className="text-2xl font-black text-neutral-900">
@@ -117,11 +117,11 @@ const Profile = () => {
                                 </div>
                             </div>
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-neutral-50 rounded-2xl flex items-center justify-center text-neutral-400">
+                                <div className="w-12 h-12 bg-neutral-50 rounded-2xl flex items-center justify-center text-neutral-600">
                                     <Ruler size={24} />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">
+                                    <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest">
                                         Altura
                                     </p>
                                     <p className="text-2xl font-black text-neutral-900">
@@ -143,7 +143,7 @@ const Profile = () => {
                         <div className="absolute top-0 left-0 w-full h-2 bg-neutral-900" />
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 flex items-center gap-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-600 flex items-center gap-2">
                                     <User size={14} /> Nombre Completo
                                 </label>
                                 <input
@@ -156,7 +156,7 @@ const Profile = () => {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 flex items-center gap-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-600 flex items-center gap-2">
                                     <Calendar size={14} /> Edad
                                 </label>
                                 <input
@@ -169,7 +169,7 @@ const Profile = () => {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 flex items-center gap-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-600 flex items-center gap-2">
                                     <Scale size={14} /> Peso (kg)
                                 </label>
                                 <input
@@ -183,7 +183,7 @@ const Profile = () => {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 flex items-center gap-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-neutral-600 flex items-center gap-2">
                                     <Ruler size={14} /> Altura (cm)
                                 </label>
                                 <input
@@ -210,10 +210,10 @@ const Profile = () => {
                 <div className="space-y-6">
                     <div className="flex items-center justify-between border-b border-neutral-200 pb-4">
                         <h3 className="text-2xl font-black text-neutral-900 uppercase tracking-tighter flex items-center gap-3">
-                            <History size={24} className="text-neutral-400" />{" "}
+                            <History size={24} className="text-neutral-600" />{" "}
                             Historial
                         </h3>
-                        <span className="text-[10px] font-black text-neutral-400 uppercase bg-neutral-100 px-3 py-1 rounded-full">
+                        <span className="text-[10px] font-black text-neutral-600 uppercase bg-neutral-100 px-3 py-1 rounded-full">
                             {healthHistory.length} Registros
                         </span>
                     </div>
@@ -229,12 +229,12 @@ const Profile = () => {
                                         onClick={() =>
                                             setRecordToDelete(record.date)
                                         }
-                                        className="absolute top-4 right-4 p-2 text-neutral-400 hover:text-red-500 transition-all bg-neutral-50 hover:bg-red-50 rounded-full"
+                                        className="absolute top-4 right-4 p-2 text-neutral-600 hover:text-red-500 transition-all bg-neutral-50 hover:bg-red-50 rounded-full"
                                     >
                                         {" "}
                                         <Trash2 size={14} />
                                     </button>
-                                    <p className="text-[9px] font-black text-neutral-400 uppercase tracking-widest mb-3">
+                                    <p className="text-[9px] font-black text-neutral-600 uppercase tracking-widest mb-3">
                                         {new Date(
                                             record.date,
                                         ).toLocaleDateString("es-ES", {
@@ -251,7 +251,7 @@ const Profile = () => {
                                                     kg
                                                 </span>
                                             </p>
-                                            <p className="text-[8px] font-bold text-neutral-400 uppercase tracking-tighter">
+                                            <p className="text-[8px] font-bold text-neutral-600 uppercase tracking-tighter">
                                                 Peso registrado
                                             </p>
                                         </div>
@@ -280,7 +280,7 @@ const Profile = () => {
                                     size={32}
                                     className="mx-auto text-neutral-200 mb-4"
                                 />
-                                <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest leading-relaxed">
+                                <p className="text-xs font-bold text-neutral-600 uppercase tracking-widest leading-relaxed">
                                     Aquí aparecerá tu evolución física cada vez
                                     que actualices tus datos.
                                 </p>
